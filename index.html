@@ -209,6 +209,7 @@ window.dispatchEvent(new Event('firebase-ready'));
   --mod-cronograma:#c85a72;   /* bordô rosado — identidade do módulo */
   --mod-cartoes:   #6e2340;   /* bordô arroxeado — identidade do módulo */
   --mod-comprasrac:#a8415f;   /* bordô rosado — identidade do módulo */
+  --mod-estoque:   #8a2f4d;   /* bordô ameixa — identidade do módulo */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -456,6 +457,7 @@ html, body {
 .sb-item[data-module="cronograma"] { --item-color: var(--mod-cronograma); }
 .sb-item[data-module="cartoes"] { --item-color: var(--mod-cartoes); }
 .sb-item[data-module="comprasrac"] { --item-color: var(--mod-comprasrac); }
+.sb-item[data-module="estoque"] { --item-color: var(--mod-estoque); }
 
 .sb-icon {
   width: 20px;
@@ -693,6 +695,7 @@ html, body {
 .hub-welcome-card[data-module="cronograma"] { border-left-color: var(--mod-cronograma); }
 .hub-welcome-card[data-module="cartoes"] { border-left-color: var(--mod-cartoes); }
 .hub-welcome-card[data-module="comprasrac"] { border-left-color: var(--mod-comprasrac); }
+.hub-welcome-card[data-module="estoque"] { border-left-color: var(--mod-estoque); }
 
 .wc-icon {
   width: 36px; height: 36px;
@@ -707,6 +710,7 @@ html, body {
 .hub-welcome-card[data-module="cronograma"] .wc-icon { background: var(--mod-cronograma); }
 .hub-welcome-card[data-module="cartoes"] .wc-icon { background: var(--mod-cartoes); }
 .hub-welcome-card[data-module="comprasrac"] .wc-icon { background: var(--mod-comprasrac); }
+.hub-welcome-card[data-module="estoque"] .wc-icon { background: var(--mod-estoque); }
 
 .wc-info h3 {
   font-family: 'Syne', sans-serif;
@@ -1029,15 +1033,15 @@ html, body {
         <span class="sb-text">Compras Racionalizadas</span>
       </button>
 
-      <div class="sb-label">Externo</div>
-
-      <!-- Controle de Estoque — Obra (site externo) -->
-      <a class="sb-item sb-item-external" href="https://suprimentos-unique.github.io/Controle-de-Estoque/" target="_blank" rel="noopener">
+      <!-- Controle de Estoque -->
+      <button class="sb-item" data-module="estoque" onclick="hubNavigate('estoque')">
         <span class="sb-icon">
           <svg viewBox="0 0 24 24"><path d="M3 3h18v4H3V3zm1 6h16v12H4V9zm3 3v2h10v-2H7z"/></svg>
         </span>
-        <span class="sb-text">Controle de Estoque — Obra</span>
-      </a>
+        <span class="sb-text">Controle de Estoque</span>
+      </button>
+
+      <div class="sb-label">Externo</div>
 
       <!-- Cotação Unique (site externo) -->
       <a class="sb-item sb-item-external" href="https://cotacao-unique.web.app/" target="_blank" rel="noopener">
@@ -1156,6 +1160,16 @@ html, body {
             <div class="wc-info">
               <h3>Compras Racionalizadas</h3>
               <p>Obras, compras e solicitações com geração de ordem de compra em PDF.</p>
+            </div>
+          </div>
+
+          <div class="hub-welcome-card" data-module="estoque" onclick="hubNavigate('estoque')">
+            <div class="wc-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 3h18v4H3V3zm1 6h16v12H4V9zm3 3v2h10v-2H7z"/></svg>
+            </div>
+            <div class="wc-info">
+              <h3>Controle de Estoque</h3>
+              <p>Entrada por PDF do Sienge, saída, itens em uso e dashboard de estoque por obra.</p>
             </div>
           </div>
 
@@ -1307,13 +1321,7 @@ html, body {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input type="text" id="gestao-prog-search" placeholder="Buscar insumo, obra, família..." oninput="gestao_filterPROG()">
       </div>
-      <div class="g-multiselect" id="gestao-prog-solnum-ms">
-        <button type="button" class="g-multiselect-btn" onclick="gestao_toggleSolNumMenu(event)">
-          <span id="gestao-prog-solnum-label">Todas as Solicitações</span>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="g-multiselect-panel" id="gestao-prog-solnum-panel" style="display:none;max-height:220px;overflow-y:auto"></div>
-      </div>
+      <input type="text" id="gestao-prog-filter-sol" placeholder="Nº Solicitação" oninput="gestao_filterPROG()" style="width:130px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.78rem">
       <select id="gestao-prog-comprador" onchange="gestao_filterPROG()"><option value="">Todos Compradores</option><option value="ALINE">Aline</option><option value="MARCOS">Marcos</option></select>
       <select id="gestao-prog-obra" onchange="gestao_filterPROG()"><option value="">Todas as Obras</option></select>
       <select id="gestao-prog-familia" onchange="gestao_filterPROG()"><option value="">Todas as Famílias</option></select>
@@ -1725,11 +1733,30 @@ function gestao_buildProg(log){
 
   const seenKeys = {};
 
+  // Famílias que ainda não têm comprador definido em gestaoFamilyMap ficavam
+  // travadas em responsavel:'—' pra sempre — e como o painel de compradores
+  // (gestao_renderBuyerPanel) só lista fams=Object.keys(gestaoFamilyMap), essa
+  // família nem aparecia lá pra alguém corrigir manualmente com um clique.
+  // Aqui cada família nova é atribuída automaticamente ao comprador (dentre
+  // GESTAO_BUYERS) que estiver com menos famílias no momento, balanceando a
+  // carga — daí ela já nasce "separada" entre Aline/Marcos e visível no painel.
+  let gestaoBuyerCounts = GESTAO_BUYERS.reduce((acc,b)=>{acc[b]=0;return acc;},{});
+  Object.values(gestaoFamilyMap).forEach(b=>{ if(gestaoBuyerCounts[b]!==undefined) gestaoBuyerCounts[b]++; });
+  let novasFamilias = 0;
+  function gestao_autoAssignFamily(familia){
+    if(familia==='—' || gestaoFamilyMap[familia]) return;
+    const buyer = GESTAO_BUYERS.reduce((a,b)=> gestaoBuyerCounts[b]<gestaoBuyerCounts[a] ? b : a);
+    gestaoFamilyMap[familia] = buyer;
+    gestaoBuyerCounts[buyer]++;
+    novasFamilias++;
+  }
+
   const novaProg = gestaoDB.solicitacoes
     .filter(s => (parseFloat(s.qt_pend)||0) > 0)
     .map(s => {
       const bd = bdMap[s.insumoCode] || {};
       const familia = bd.familia || '—';
+      gestao_autoAssignFamily(familia);
       const baseKey = `${s.solicitacao||''}_${s.insumo}_${s.obra||''}`;
       let _key = baseKey;
       if(seenKeys[baseKey]){ seenKeys[baseKey]++; _key = baseKey+'__'+seenKeys[baseKey]; }
@@ -1769,12 +1796,16 @@ function gestao_buildProg(log){
   gestaoDB.programacao = novaProg;
   gestaoState.prog.data = [...novaProg];
 
-  if(log) log.textContent += `📅 Programação — ${novaProg.length} itens montados a partir das solicitações.\n`;
+  if(log){
+    log.textContent += `📅 Programação — ${novaProg.length} itens montados a partir das solicitações.\n`;
+    if(novasFamilias) log.textContent += `👤 ${novasFamilias} família(s) nova(s) atribuída(s) automaticamente entre Aline/Marcos.\n`;
+  }
 
   gestao_rebuildProgFilters();
   gestao_filterPROG();
   gestao_updateProgStats();
   gestao_renderBuyerPanel();
+  if(novasFamilias) gestao_scheduleSave(); // persiste as novas famílias em gestaoFamilyMap
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1838,9 +1869,6 @@ document.addEventListener('click', (e)=>{
   const ms2 = document.getElementById('gestao-prog-cotnum-ms');
   const panel2 = document.getElementById('gestao-prog-cotnum-panel');
   if(panel2 && ms2 && !ms2.contains(e.target)) panel2.style.display='none';
-  const ms3 = document.getElementById('gestao-prog-solnum-ms');
-  const panel3 = document.getElementById('gestao-prog-solnum-panel');
-  if(panel3 && ms3 && !ms3.contains(e.target)) panel3.style.display='none';
 });
 function gestao_esc(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'&quot;');}
 
@@ -1900,68 +1928,6 @@ function gestao_populateCotNumFilter(){
     });
   }
   gestao_updateCotNumLabel();
-}
-
-// ─── Multi-seleção de Nº Solicitação na Programação ──────────────────
-let gestaoProgSolNumSel = []; // vazio = todas as solicitações
-
-function gestao_toggleSolNumMenu(e){
-  e.stopPropagation();
-  const panel = document.getElementById('gestao-prog-solnum-panel');
-  if(panel) panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
-function gestao_toggleSolNumOption(chk){
-  if(chk.checked){
-    if(!gestaoProgSolNumSel.includes(chk.value)) gestaoProgSolNumSel.push(chk.value);
-  } else {
-    gestaoProgSolNumSel = gestaoProgSolNumSel.filter(v=>v!==chk.value);
-  }
-  gestao_updateSolNumLabel();
-  gestao_filterPROG();
-}
-
-function gestao_updateSolNumLabel(){
-  const label = document.getElementById('gestao-prog-solnum-label');
-  if(!label) return;
-  label.textContent = gestaoProgSolNumSel.length===0 ? 'Todas as Solicitações'
-    : gestaoProgSolNumSel.length===1 ? 'Solicitação '+gestaoProgSolNumSel[0]
-    : gestaoProgSolNumSel.length+' solicitações selecionadas';
-}
-
-// Reconstrói a lista de checkboxes a partir dos números de solicitação
-// realmente presentes nos dados importados (não é uma lista fixa).
-// Usa DOM API (não innerHTML) por segurança, mesmo padrão do filtro de Nº Cotação.
-function gestao_populateSolNumFilter(){
-  const panel = document.getElementById('gestao-prog-solnum-panel');
-  if(!panel) return;
-  const values = [...new Set(gestaoDB.programacao.map(r=>String(r.solicitacao||'')).filter(Boolean))]
-    .sort((a,b)=>{
-      const na=Number(a), nb=Number(b);
-      if(!isNaN(na) && !isNaN(nb)) return na-nb;
-      return a.localeCompare(b);
-    });
-  gestaoProgSolNumSel = gestaoProgSolNumSel.filter(v=>values.includes(v));
-  panel.innerHTML='';
-  if(!values.length){
-    const empty = document.createElement('div');
-    empty.style.cssText='padding:6px 8px;font-size:.72rem;color:var(--g-muted);font-family:Syne,sans-serif;white-space:nowrap';
-    empty.textContent='Nenhuma solicitação encontrada';
-    panel.appendChild(empty);
-  } else {
-    values.forEach(v=>{
-      const label = document.createElement('label');
-      const chk = document.createElement('input');
-      chk.type='checkbox';
-      chk.value=v;
-      chk.checked=gestaoProgSolNumSel.includes(v);
-      chk.onchange=function(){gestao_toggleSolNumOption(this);};
-      label.appendChild(chk);
-      label.appendChild(document.createTextNode(' '+v));
-      panel.appendChild(label);
-    });
-  }
-  gestao_updateSolNumLabel();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -2120,7 +2086,7 @@ function gestao_updateProgStats(){
   document.getElementById('gestao-sp5').textContent=total?Math.round(armazem/total*100)+'%':'—';
   document.getElementById('gestao-sp6').textContent=total?Math.round(fabrica/total*100)+'%':'—';
 }
-function gestao_rebuildProgFilters(){gestao_populateSelect('gestao-prog-obra',[...new Set(gestaoDB.programacao.map(r=>r.obra).filter(Boolean))].sort(),'Todas as Obras');gestao_populateSelect('gestao-prog-familia',[...new Set(gestaoDB.programacao.map(r=>r.familia).filter(f=>f&&f!=='—'))].sort(),'Todas as Famílias');gestao_populateCotNumFilter();gestao_populateSolNumFilter();}
+function gestao_rebuildProgFilters(){gestao_populateSelect('gestao-prog-obra',[...new Set(gestaoDB.programacao.map(r=>r.obra).filter(Boolean))].sort(),'Todas as Obras');gestao_populateSelect('gestao-prog-familia',[...new Set(gestaoDB.programacao.map(r=>r.familia).filter(f=>f&&f!=='—'))].sort(),'Todas as Famílias');gestao_populateCotNumFilter();}
 function gestao_calcDias(r){
   // Recalculate dias relative to GESTAO_TODAY using data_necessidade string
   if(!r.data_necessidade || r.data_necessidade === '—') return null;
@@ -2140,11 +2106,11 @@ function gestao_filterPROG(){
   const f=document.getElementById('gestao-prog-familia').value;
   const s=gestaoProgStatusSel;
   const cn=gestaoProgCotNumSel;
-  const sn=gestaoProgSolNumSel;
   const sort=document.getElementById('gestao-prog-sort')?document.getElementById('gestao-prog-sort').value:'data_asc';
 
+  const nsProg=(document.getElementById('gestao-prog-filter-sol')?.value||'').trim();
   let filtered = gestaoState.prog.data.filter(r=>
-    (!q||r.insumo.toLowerCase().includes(q)||r.obra.toLowerCase().includes(q)||(r.familia||'').toLowerCase().includes(q))&&(!sn.length||sn.includes(String(r.solicitacao||'')))&&
+    (!q||r.insumo.toLowerCase().includes(q)||r.obra.toLowerCase().includes(q)||(r.familia||'').toLowerCase().includes(q))&&(!nsProg||String(r.solicitacao||'').includes(nsProg))&&
     (!c||r.responsavel===c)&&(!o||r.obra===o)&&(!f||r.familia===f)&&(!s.length||s.includes(r.status))&&(!cn.length||cn.includes(r.cotacao_manual))
   );
 
@@ -8201,6 +8167,1362 @@ document.addEventListener("change", handleChange);
 
 </script>
 
+    <!-- ── MÓDULO: CONTROLE DE ESTOQUE ── -->
+    <section id="hub-module-estoque" class="hub-module">
+<style>
+#hub-module-estoque{
+  --bg:#0d0d0f;
+    --bg-elev:#151517;
+    --bg-card:#1b1b1e;
+    --bg-input:#141416;
+    --border:#2a2a2e;
+    --border-light:#333338;
+    --red:#e5285a;
+    --red-dim:rgba(229,40,90,0.14);
+    --red-dim-strong:rgba(229,40,90,0.28);
+    --orange:#f2861d;
+    --orange-dim:rgba(242,134,29,0.14);
+    --green:#33d17a;
+    --green-dim:rgba(51,209,122,0.14);
+    --text:#f2f2f3;
+    --text-muted:#9a9aa2;
+    --text-faint:#6b6b72;
+    --radius:12px;
+    --radius-sm:8px;
+  margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    font-size:14px;
+    line-height:1.5;
+}
+#hub-module-estoque *{box-sizing:border-box;}
+  
+  #hub-module-estoque .app{max-width:1100px;margin:0 auto;padding:24px 20px 80px;}
+
+  /* ---------- TOPBAR ---------- */
+  #hub-module-estoque .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    padding-bottom:20px;margin-bottom:20px;border-bottom:1px solid var(--border);
+    flex-wrap:wrap;gap:12px;
+  }
+  #hub-module-estoque .topbar-title{display:flex;align-items:center;gap:12px;}
+  #hub-module-estoque .topbar-icon{
+    width:36px;height:36px;border-radius:10px;
+    background:var(--red-dim);color:var(--red);
+    display:flex;align-items:center;justify-content:center;font-size:18px;
+  }
+  #hub-module-estoque .topbar h1{
+    font-size:13px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--red);font-weight:700;margin:0;
+  }
+  #hub-module-estoque .topbar-sub{font-size:11px;color:var(--text-faint);letter-spacing:0.08em;text-transform:uppercase;margin-top:2px;}
+  #hub-module-estoque .config-pill{
+    font-size:11px;padding:6px 12px;border-radius:999px;
+    border:1px solid var(--border-light);color:var(--text-muted);
+    cursor:pointer;background:var(--bg-elev);
+  }
+  #hub-module-estoque .config-pill.warn{border-color:var(--red-dim-strong);color:var(--red);}
+  #hub-module-estoque .config-pill:hover{border-color:var(--text-muted);}
+
+  /* ---------- OBRA BAR ---------- */
+  #hub-module-estoque .obra-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+  #hub-module-estoque .obra-pills{display:flex;gap:8px;flex-wrap:wrap;}
+  #hub-module-estoque .obra-pill{
+    background:var(--bg-elev);border:1px solid var(--border-light);color:var(--text-muted);
+    font-family:inherit;font-size:12px;font-weight:700;letter-spacing:.02em;
+    padding:7px 16px;border-radius:999px;cursor:pointer;transition:all .15s;
+  }
+  #hub-module-estoque .obra-pill:hover{color:var(--text);}
+  #hub-module-estoque .obra-pill.active{background:var(--red-dim);border-color:var(--red);color:var(--red);}
+  #hub-module-estoque .obra-pill.add{border-style:dashed;color:var(--text-faint);}
+  #hub-module-estoque .obra-actions{display:flex;gap:8px;}
+  #hub-module-estoque .obra-empty-banner{
+    border:1px dashed var(--border-light);border-radius:var(--radius);
+    padding:16px;text-align:center;color:var(--text-muted);font-size:13px;margin-bottom:18px;
+  }
+
+  /* ---------- TABS ---------- */
+  #hub-module-estoque .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap;}
+  #hub-module-estoque .est-tab{
+    background:none;border:none;color:var(--text-muted);
+    font-family:inherit;font-size:13px;font-weight:600;
+    padding:10px 4px;margin-right:22px;cursor:pointer;
+    border-bottom:2px solid transparent;transition:color .15s, border-color .15s;
+  }
+  #hub-module-estoque .est-tab:hover{color:var(--text);}
+  #hub-module-estoque .est-tab.active{color:var(--red);border-bottom-color:var(--red);}
+
+  #hub-module-estoque .subtabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+  #hub-module-estoque .est-subtab{
+    background:var(--bg-elev);border:1px solid var(--border);color:var(--text-muted);
+    font-family:inherit;font-size:12px;font-weight:600;letter-spacing:.02em;
+    padding:7px 14px;border-radius:999px;cursor:pointer;transition:all .15s;
+  }
+  #hub-module-estoque .est-subtab:hover{border-color:var(--border-light);color:var(--text);}
+  #hub-module-estoque .est-subtab.active{background:var(--red-dim);border-color:var(--red-dim-strong);color:var(--red);}
+
+  #hub-module-estoque .est-view{display:none;}
+  #hub-module-estoque .est-view.active{display:block;}
+  #hub-module-estoque .est-dash-pane{display:none;}
+  #hub-module-estoque .est-dash-pane.active{display:block;}
+
+  /* ---------- CARD / LAYOUT ---------- */
+  #hub-module-estoque .card{
+    background:var(--bg-card);border:1px solid var(--border);
+    border-radius:var(--radius);padding:20px;margin-bottom:16px;
+  }
+  #hub-module-estoque .card-title{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);font-weight:700;margin:0 0 14px;}
+  #hub-module-estoque .grid{display:grid;gap:14px;}
+  #hub-module-estoque .grid-2{grid-template-columns:1fr 1fr;}
+  #hub-module-estoque .grid-3{grid-template-columns:1fr 1fr 1fr;}
+  
+@media (max-width:640px) {#hub-module-estoque .grid-2, #hub-module-estoque .grid-3{grid-template-columns:1fr;}}
+
+
+  #hub-module-estoque .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);margin-bottom:6px;font-weight:600;}
+  #hub-module-estoque input[type=text], #hub-module-estoque input[type=number], #hub-module-estoque input[type=date], #hub-module-estoque select, #hub-module-estoque textarea{
+    width:100%;background:var(--bg-input);border:1px solid var(--border);
+    color:var(--text);border-radius:var(--radius-sm);padding:10px 12px;
+    font-family:inherit;font-size:13px;outline:none;transition:border-color .15s;
+  }
+  #hub-module-estoque input:focus, #hub-module-estoque select:focus, #hub-module-estoque textarea:focus{border-color:var(--red);}
+  #hub-module-estoque input::placeholder{color:var(--text-faint);}
+
+  /* ---------- BUTTONS ---------- */
+  #hub-module-estoque .btn{
+    display:inline-flex;align-items:center;gap:6px;justify-content:center;
+    font-family:inherit;font-size:13px;font-weight:600;
+    border-radius:999px;padding:10px 18px;cursor:pointer;border:1px solid transparent;
+    transition:all .15s;
+  }
+  #hub-module-estoque .btn:focus-visible{outline:2px solid var(--red);outline-offset:2px;}
+  #hub-module-estoque .btn-primary{background:var(--red);color:#fff;}
+  #hub-module-estoque .btn-primary:hover{background:#c81f4a;}
+  #hub-module-estoque .btn-outline{background:transparent;border-color:var(--border-light);color:var(--text);}
+  #hub-module-estoque .btn-outline:hover{border-color:var(--text-muted);}
+  #hub-module-estoque .btn-danger{background:transparent;border-color:var(--red-dim-strong);color:var(--red);}
+  #hub-module-estoque .btn-danger:hover{background:var(--red-dim);}
+  #hub-module-estoque .btn-sm{padding:6px 12px;font-size:12px;}
+  #hub-module-estoque .btn:disabled{opacity:.4;cursor:not-allowed;}
+  #hub-module-estoque .btn-block{width:100%;}
+
+  /* ---------- BADGES ---------- */
+  #hub-module-estoque .badge{display:inline-flex;align-items:center;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.02em;}
+  #hub-module-estoque .badge-red{background:var(--red-dim);color:var(--red);}
+  #hub-module-estoque .badge-green{background:var(--green-dim);color:var(--green);}
+  #hub-module-estoque .badge-orange{background:var(--orange-dim);color:var(--orange);}
+  #hub-module-estoque .badge-gray{background:var(--bg-elev);color:var(--text-muted);border:1px solid var(--border-light);}
+
+  /* ---------- TABLE ---------- */
+  #hub-module-estoque table{width:100%;border-collapse:collapse;}
+  #hub-module-estoque thead th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--text-faint);font-weight:700;padding:0 12px 10px;border-bottom:1px solid var(--border);
+  }
+  #hub-module-estoque tbody td{padding:12px;border-bottom:1px solid var(--border);font-size:13px;}
+  #hub-module-estoque tbody tr:last-child td{border-bottom:none;}
+  #hub-module-estoque tbody tr.clickable{cursor:pointer;}
+  #hub-module-estoque tbody tr.clickable:hover{background:var(--bg-elev);}
+  #hub-module-estoque .num{text-align:right;font-variant-numeric:tabular-nums;}
+  #hub-module-estoque .empty-state{padding:36px 16px;text-align:center;color:var(--text-faint);font-size:13px;}
+
+  /* ---------- CHECKLIST (itens do pedido) ---------- */
+  #hub-module-estoque .item-row{
+    display:grid;grid-template-columns:1fr 130px 90px;gap:12px;align-items:center;
+    padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;
+  }
+  #hub-module-estoque .item-row .nome{font-weight:600;font-size:13px;}
+  #hub-module-estoque .item-row .meta{font-size:11px;color:var(--text-faint);margin-top:2px;}
+  
+@media (max-width:640px) {#hub-module-estoque .item-row{grid-template-columns:1fr;}}
+
+
+  /* ---------- AUTOCOMPLETE ---------- */
+  #hub-module-estoque .est-autocomplete-wrap{position:relative;}
+  #hub-module-estoque .autocomplete-list{
+    position:absolute;z-index:20;top:calc(100% + 4px);left:0;right:0;
+    background:var(--bg-elev);border:1px solid var(--border-light);border-radius:var(--radius-sm);
+    max-height:220px;overflow-y:auto;display:none;
+  }
+  #hub-module-estoque .autocomplete-list.show{display:block;}
+  #hub-module-estoque .autocomplete-item{padding:9px 12px;font-size:13px;cursor:pointer;}
+  #hub-module-estoque .autocomplete-item:hover, #hub-module-estoque .autocomplete-item.active{background:var(--red-dim);}
+  #hub-module-estoque .autocomplete-item small{display:block;color:var(--text-faint);font-size:11px;margin-top:1px;}
+
+  /* ---------- TOAST ---------- */
+  #hub-module-estoque #estoque-toast-container{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:100;}
+  #hub-module-estoque .toast{
+    background:var(--bg-elev);border:1px solid var(--border-light);border-left:3px solid var(--green);
+    color:var(--text);padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;
+    max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.4);
+  }
+  #hub-module-estoque .toast.error{border-left-color:var(--red);}
+
+  /* ---------- MODAL ---------- */
+  #hub-module-estoque .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;
+    align-items:center;justify-content:center;z-index:90;padding:20px;
+  }
+  #hub-module-estoque .modal-overlay.show{display:flex;}
+  #hub-module-estoque .modal{
+    background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius);
+    padding:24px;max-width:560px;width:100%;max-height:82vh;overflow-y:auto;
+  }
+  #hub-module-estoque .modal h2{font-size:15px;margin:0 0 4px;}
+  #hub-module-estoque .modal .close-x{float:right;cursor:pointer;color:var(--text-faint);font-size:20px;line-height:1;}
+  #hub-module-estoque .modal-section-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);font-weight:700;margin:18px 0 8px;}
+
+  #hub-module-estoque .divider{height:1px;background:var(--border);margin:18px 0;}
+  #hub-module-estoque .helper-text{font-size:12px;color:var(--text-faint);margin-top:6px;}
+  #hub-module-estoque .flex-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+  #hub-module-estoque .stack{display:flex;flex-direction:column;gap:6px;}
+  #hub-module-estoque .hidden{display:none !important;}
+  #hub-module-estoque a{color:var(--red);}
+</style>
+<div class="app">
+
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">
+        <div class="topbar-icon">▣</div>
+        <div>
+          <h1>Controle de Estoque</h1>
+          <div class="topbar-sub">Obra · Suprimentos</div>
+        </div>
+      </div>
+    </div>
+    <div id="estoque-config-pill" class="config-pill" onclick="estoque_abrirConfigModal()">Verificando conexão…</div>
+  </div>
+
+  <div class="obra-bar">
+    <div id="estoque-obra-pills" class="obra-pills"></div>
+    <div class="obra-actions">
+      <button class="btn btn-outline btn-sm" onclick="estoque_abrirModalEncerrarObra()">Encerrar obra</button>
+      <button class="btn btn-danger btn-sm" onclick="estoque_abrirModalExcluirObra()">Excluir obra</button>
+    </div>
+  </div>
+  <div id="estoque-obra-empty-banner" class="obra-empty-banner hidden">
+    Nenhuma obra cadastrada ainda. Crie a primeira obra, ou envie um PDF de pedido — a obra é criada automaticamente a partir dele.
+  </div>
+
+  <nav class="tabs">
+    <button class="est-tab active" data-view="pedido" onclick="estoque_mudarView('pedido')">Pedido / Entrada</button>
+    <button class="est-tab" data-view="saida" onclick="estoque_mudarView('saida')">Saída</button>
+    <button class="est-tab" data-view="emuso" onclick="estoque_mudarView('emuso')">Em Uso</button>
+    <button class="est-tab" data-view="dashboard" onclick="estoque_mudarView('dashboard')">Dashboard</button>
+  </nav>
+
+  <!-- ===================== VIEW: PEDIDO / ENTRADA ===================== -->
+  <section id="estoque-view-pedido" class="est-view active">
+
+    <div class="card">
+      <p class="card-title">1. Enviar o pedido</p>
+      <div class="grid grid-2">
+        <div class="field">
+          <label for="estoque-pdf-input">PDF do pedido de compra</label>
+          <input type="file" id="estoque-pdf-input" accept="application/pdf" onchange="estoque_onPdfSelecionado(event)">
+          <p class="helper-text" id="estoque-pdf-status">Selecione o PDF gerado pelo SIENGE.</p>
+        </div>
+        <div class="field">
+          <label for="estoque-busca-numero">Ou digite o número do pedido</label>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="estoque-busca-numero" placeholder="Ex: 12380">
+            <button class="btn btn-outline" onclick="estoque_buscarPedidoPorNumero()">Buscar</button>
+          </div>
+          <p class="helper-text">Útil se o pedido já foi lançado antes e você só quer registrar mais uma entrega.</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="estoque-pedido-info" class="card hidden">
+      <div class="flex-between">
+        <div>
+          <p class="card-title" style="margin-bottom:4px;">2. Itens do pedido</p>
+          <div id="estoque-pedido-cabecalho" class="helper-text"></div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="estoque_confirmarCancelarPedidoInteiro()">Cancelar saldo do pedido inteiro</button>
+      </div>
+      <div class="divider"></div>
+      <div id="estoque-itens-pedido-lista"></div>
+
+      <div class="divider"></div>
+      <p class="card-title">3. Dados da entrega</p>
+      <div class="grid grid-3">
+        <div class="field">
+          <label for="estoque-entrada-data">Data de entrada</label>
+          <input type="date" id="estoque-entrada-data">
+        </div>
+        <div class="field">
+          <label for="estoque-entrada-recebeu">Quem recebeu</label>
+          <input type="text" id="estoque-entrada-recebeu" placeholder="Nome de quem recebeu">
+        </div>
+        <div class="field">
+          <label for="estoque-entrada-lancou">Quem está lançando</label>
+          <input type="text" id="estoque-entrada-lancou" placeholder="Seu nome">
+        </div>
+      </div>
+      <div style="margin-top:16px;">
+        <button class="btn btn-primary" onclick="estoque_confirmarEntrada()">Confirmar entrada</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ===================== VIEW: SAÍDA ===================== -->
+  <section id="estoque-view-saida" class="est-view">
+    <div class="card" style="max-width:560px;">
+      <p class="card-title">Registrar saída de material</p>
+      <div class="stack">
+        <div class="field est-autocomplete-wrap">
+          <label for="estoque-saida-insumo">Insumo</label>
+          <input type="text" id="estoque-saida-insumo" placeholder="Busque por código ou nome…" autocomplete="off" oninput="estoque_filtrarAutocompleteSaida()">
+          <div id="estoque-saida-autocomplete-list" class="autocomplete-list"></div>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label for="estoque-saida-quantidade">Quantidade</label>
+            <input type="number" id="estoque-saida-quantidade" min="0" step="0.01" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="estoque-saida-data">Data de saída</label>
+            <input type="date" id="estoque-saida-data">
+          </div>
+        </div>
+        <div class="field">
+          <label for="estoque-saida-destinado">Destinado para</label>
+          <input type="text" id="estoque-saida-destinado" placeholder="Nome de quem vai usar o material">
+        </div>
+        <div class="field">
+          <label for="estoque-saida-lancou">Quem está lançando</label>
+          <input type="text" id="estoque-saida-lancou" placeholder="Seu nome">
+        </div>
+        <button class="btn btn-primary" style="margin-top:6px;" onclick="estoque_confirmarSaida()">Registrar saída</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== VIEW: EM USO ===================== -->
+  <section id="estoque-view-emuso" class="est-view">
+    <div class="card" style="max-width:560px;">
+      <p class="card-title">Registrar item em uso</p>
+      <p class="helper-text" style="margin-top:-8px;margin-bottom:14px;">Para ferramentas e materiais que saem do almoxarifado mas devem retornar (não é consumo definitivo).</p>
+      <div class="stack">
+        <div class="field est-autocomplete-wrap">
+          <label for="estoque-emuso-insumo">Insumo</label>
+          <input type="text" id="estoque-emuso-insumo" placeholder="Busque por código ou nome…" autocomplete="off" oninput="estoque_filtrarAutocompleteEmUso()">
+          <div id="estoque-emuso-autocomplete-list" class="autocomplete-list"></div>
+        </div>
+        <div class="grid grid-2">
+          <div class="field">
+            <label for="estoque-emuso-quantidade">Quantidade</label>
+            <input type="number" id="estoque-emuso-quantidade" min="0" step="0.01" placeholder="0">
+          </div>
+          <div class="field">
+            <label for="estoque-emuso-data">Data de saída</label>
+            <input type="date" id="estoque-emuso-data">
+          </div>
+        </div>
+        <div class="field">
+          <label for="estoque-emuso-destinado">Quem está usando / para onde vai</label>
+          <input type="text" id="estoque-emuso-destinado" placeholder="Ex: Equipe de elétrica - OBR24">
+        </div>
+        <div class="field">
+          <label for="estoque-emuso-lancou">Quem está lançando</label>
+          <input type="text" id="estoque-emuso-lancou" placeholder="Seu nome">
+        </div>
+        <button class="btn btn-primary" style="margin-top:6px;" onclick="estoque_confirmarEmUso()">Registrar saída temporária</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="card-title">Itens atualmente em uso</p>
+      <div id="estoque-lista-em-uso"></div>
+    </div>
+  </section>
+
+  <!-- ===================== VIEW: DASHBOARD ===================== -->
+  <section id="estoque-view-dashboard" class="est-view">
+
+    <div class="subtabs">
+      <button class="est-subtab active" data-pane="estoque" onclick="estoque_mudarSubtab('estoque')">Estoque atual</button>
+      <button class="est-subtab" data-pane="historico" onclick="estoque_mudarSubtab('historico')">Histórico de movimentações</button>
+      <button class="est-subtab" data-pane="ranking" onclick="estoque_mudarSubtab('ranking')">Ranking de requisições</button>
+      <button class="est-subtab" data-pane="pendentes" onclick="estoque_mudarSubtab('pendentes')">Pedidos pendentes</button>
+    </div>
+
+    <!-- ESTOQUE ATUAL -->
+    <div id="estoque-dash-estoque" class="est-dash-pane active">
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:10px;">
+          <p class="card-title" style="margin:0;">Estoque atual por insumo</p>
+          <input type="text" id="estoque-filtro-estoque" placeholder="Buscar por código ou nome…" style="max-width:260px;" oninput="estoque_renderEstoqueAtual()">
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Código</th><th>Insumo</th><th>Unid.</th><th class="num">Estoque</th><th class="num">Em uso</th><th></th></tr></thead>
+            <tbody id="estoque-tbody-estoque"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div id="estoque-dash-historico" class="est-dash-pane">
+      <div class="card">
+        <div class="grid grid-3" style="margin-bottom:14px;">
+          <div class="field"><label>De</label><input type="date" id="estoque-hist-data-inicio"></div>
+          <div class="field"><label>Até</label><input type="date" id="estoque-hist-data-fim"></div>
+          <div class="field"><label>Código do insumo</label><input type="text" id="estoque-hist-filtro-codigo" placeholder="Todos"></div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="estoque_carregarDashboard()">Aplicar filtro</button>
+        <div class="divider"></div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Data</th><th>Tipo</th><th>Insumo</th><th class="num">Qtd.</th><th>Detalhe</th><th>Lançado por</th></tr></thead>
+            <tbody id="estoque-tbody-historico"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- RANKING -->
+    <div id="estoque-dash-ranking" class="est-dash-pane">
+      <div class="card">
+        <p class="card-title">Quem mais requisitou material (no período filtrado no histórico)</p>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Destinatário</th><th class="num">Total retirado</th></tr></thead>
+            <tbody id="estoque-tbody-ranking"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS PENDENTES -->
+    <div id="estoque-dash-pendentes" class="est-dash-pane">
+      <div id="estoque-lista-pendentes"></div>
+    </div>
+
+  </section>
+
+</div>
+
+<div id="estoque-toast-container"></div>
+
+<!-- MODAL: nova obra -->
+<div id="estoque-modal-nova-obra" class="modal-overlay">
+  <div class="modal">
+    <span class="close-x" onclick="estoque_fecharModal('estoque-modal-nova-obra')">&times;</span>
+    <h2>Nova obra</h2>
+    <p class="helper-text">Use o mesmo código numérico do SIENGE para essa obra.</p>
+    <div class="grid grid-2" style="margin-top:12px;">
+      <div class="field"><label for="estoque-input-obra-codigo">Código</label><input type="text" id="estoque-input-obra-codigo" placeholder="Ex: 27"></div>
+      <div class="field"><label for="estoque-input-obra-nome">Nome</label><input type="text" id="estoque-input-obra-nome" placeholder="Ex: Jardins"></div>
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="estoque_salvarNovaObra()">Criar obra</button>
+  </div>
+</div>
+
+<!-- MODAL: encerrar obra -->
+<div id="estoque-modal-encerrar-obra" class="modal-overlay">
+  <div class="modal">
+    <span class="close-x" onclick="estoque_fecharModal('estoque-modal-encerrar-obra')">&times;</span>
+    <h2>Encerrar obra</h2>
+    <p class="helper-text" id="estoque-encerrar-obra-info"></p>
+    <p class="helper-text">Ela some da lista de obras ativas, mas todo o histórico continua guardado.</p>
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="estoque_confirmarEncerrarObra()">Confirmar encerramento</button>
+  </div>
+</div>
+
+<!-- MODAL: excluir obra -->
+<div id="estoque-modal-excluir-obra" class="modal-overlay">
+  <div class="modal">
+    <span class="close-x" onclick="estoque_fecharModal('estoque-modal-excluir-obra')">&times;</span>
+    <h2>Excluir obra</h2>
+    <p class="helper-text" id="estoque-excluir-obra-info"></p>
+    <p class="helper-text" style="color:var(--red);">Isso apaga a obra e TODO o histórico de pedidos, entradas, saídas e itens em uso vinculados a ela. Não tem como desfazer.</p>
+    <div class="field" style="margin-top:12px;">
+      <label for="estoque-input-senha-exclusao">Senha</label>
+      <input type="text" id="estoque-input-senha-exclusao" placeholder="Senha de exclusão">
+    </div>
+    <button class="btn btn-danger" style="margin-top:14px;" onclick="estoque_confirmarExcluirObra()">Excluir definitivamente</button>
+  </div>
+</div>
+
+<!-- MODAL: configurar URL -->
+<div id="estoque-modal-config" class="modal-overlay">
+  <div class="modal">
+    <span class="close-x" onclick="estoque_fecharModal('estoque-modal-config')">&times;</span>
+    <h2>Configurar conexão</h2>
+    <p class="helper-text">Cole a URL do Google Apps Script publicada (termina em <code>/exec</code>).</p>
+    <div class="field" style="margin-top:12px;">
+      <input type="text" id="estoque-input-api-url" placeholder="https://script.google.com/macros/s/XXXX/exec">
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px;" onclick="estoque_salvarApiUrl()">Salvar</button>
+  </div>
+</div>
+
+<!-- MODAL: detalhe do insumo -->
+<div id="estoque-modal-insumo" class="modal-overlay">
+  <div class="modal">
+    <span class="close-x" onclick="estoque_fecharModal('estoque-modal-insumo')">&times;</span>
+    <div id="estoque-modal-insumo-conteudo"></div>
+  </div>
+</div>
+
+<!-- MODAL: devolução de item em uso -->
+<div id="estoque-modal-retorno" class="modal-overlay">
+  <div class="modal">
+    <span class="close-x" onclick="estoque_fecharModal('estoque-modal-retorno')">&times;</span>
+    <h2>Confirmar devolução</h2>
+    <p class="helper-text" id="estoque-modal-retorno-info"></p>
+    <div class="field" style="margin-top:12px;">
+      <label for="estoque-input-data-retorno">Data de retorno</label>
+      <input type="date" id="estoque-input-data-retorno">
+    </div>
+    <button class="btn btn-primary" style="margin-top:14px;" id="estoque-btn-confirmar-retorno">Confirmar</button>
+  </div>
+</div>
+
+<!-- MODAL: motivo de cancelamento -->
+<div id="estoque-modal-motivo" class="modal-overlay">
+  <div class="modal">
+    <span class="close-x" onclick="estoque_fecharModal('estoque-modal-motivo')">&times;</span>
+    <h2 id="estoque-modal-motivo-titulo">Cancelar</h2>
+    <p class="helper-text">Descreva o motivo do cancelamento.</p>
+    <div class="field" style="margin-top:12px;">
+      <textarea id="estoque-input-motivo" rows="3" placeholder="Ex: fornecedor informou que não vai mais entregar o restante"></textarea>
+    </div>
+    <button class="btn btn-danger" style="margin-top:14px;" id="estoque-btn-confirmar-motivo">Confirmar cancelamento</button>
+  </div>
+</div>
+<script>
+/* =======================================================================
+   CONFIGURAÇÃO
+   Cole aqui a URL do Google Apps Script publicada (Guia de configuração,
+   passo 5). Precisa terminar em "/exec".
+   ======================================================================= */
+const estoqueG_API_URL_PADRAO = "https://script.google.com/macros/s/AKfycbzVRP1lC8FHxMY-4XFwIfyiQHWw9A0oMfa-cOBEjRhVwInvBPCsifup1-4fgh4jTd3J1A/exec";
+
+let estoqueG_API_URL = (estoqueG_API_URL_PADRAO.indexOf("http") === 0) ? estoqueG_API_URL_PADRAO : (localStorage.getItem('estoqueObra_apiUrl') || "");
+
+const estoque_state = {
+  pedidoAtual: null,       // {NumeroPedido, DataPedido, ObraCodigo, ObraNome, Fornecedor}
+  itensPedidoAtual: [],    // itens pendentes vindos do servidor
+  cadastro: [],            // lista completa de insumos (cache)
+  obras: [],               // todas as obras (ativas e encerradas)
+  obraAtual: null,         // {Codigo, Nome, Status} selecionada nas pílulas
+  dashboard: { estoqueAtual: [], movimentacoes: [], ranking: [] }
+};
+
+/* =======================================================================
+   UTILITÁRIOS
+   ======================================================================= */
+function estoque_normalize(str){
+  return String(str || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+function estoque_parseNumeroBR(str){
+  if (typeof str === 'number') return str;
+  return parseFloat(String(str).replace(/\./g,'').replace(',', '.')) || 0;
+}
+function estoque_hojeISO(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+function estoque_formatData(valor){
+  if (!valor) return '—';
+  const d = new Date(valor);
+  if (isNaN(d)) return String(valor);
+  return d.toLocaleDateString('pt-BR');
+}
+function estoque_toast(msg, isError){
+  const el = document.createElement('div');
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.textContent = msg;
+  document.getElementById('estoque-toast-container').appendChild(el);
+  setTimeout(() => el.remove(), 5000);
+}
+function estoque_abrirModal(id){ document.getElementById(id).classList.add('show'); }
+function estoque_fecharModal(id){ document.getElementById(id).classList.remove('show'); }
+
+/* =======================================================================
+   API (Google Apps Script)
+   ======================================================================= */
+async function estoque_apiGet(action, params){
+  if (!estoque_apiConfigurada()) { estoque_abrirConfigModal(); throw new Error('Conecte a planilha antes de continuar.'); }
+  const url = new URL(estoqueG_API_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params || {}).forEach(([k,v]) => {
+    if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
+  });
+  const res = await fetch(url.toString());
+  const data = await res.json();
+  if (data.erro) throw new Error(data.erro);
+  return data;
+}
+async function estoque_apiPost(action, body){
+  if (!estoque_apiConfigurada()) { estoque_abrirConfigModal(); throw new Error('Conecte a planilha antes de continuar.'); }
+  const res = await fetch(estoqueG_API_URL, {
+    method: 'POST',
+    headers: {'Content-Type': 'text/plain;charset=utf-8'},
+    body: JSON.stringify({ action, ...body })
+  });
+  const data = await res.json();
+  if (data.erro) throw new Error(data.erro);
+  return data;
+}
+function estoque_apiConfigurada(){
+  return !!estoqueG_API_URL && estoqueG_API_URL.indexOf('http') === 0;
+}
+
+/* =======================================================================
+   CONEXÃO / CONFIG MODAL
+   ======================================================================= */
+function estoque_abrirConfigModal(){
+  document.getElementById('estoque-input-api-url').value = estoque_apiConfigurada() ? estoqueG_API_URL : '';
+  estoque_abrirModal('estoque-modal-config');
+}
+function estoque_salvarApiUrl(){
+  const v = document.getElementById('estoque-input-api-url').value.trim();
+  if (!v.startsWith('http')){ estoque_toast('Cole uma URL válida.', true); return; }
+  estoqueG_API_URL = v;
+  localStorage.setItem('estoqueObra_apiUrl', v);
+  estoque_fecharModal('estoque-modal-config');
+  estoque_atualizarPillConexao();
+  estoque_carregarCadastro();
+  estoque_carregarObras();
+}
+async function estoque_atualizarPillConexao(){
+  const pill = document.getElementById('estoque-config-pill');
+  if (!estoque_apiConfigurada()){
+    pill.textContent = 'Conectar planilha';
+    pill.classList.add('warn');
+    return;
+  }
+  pill.textContent = 'Conectado';
+  pill.classList.remove('warn');
+}
+
+/* =======================================================================
+   OBRAS (seletor persistente, criação, encerramento, exclusão)
+   ======================================================================= */
+async function estoque_carregarObras(manterSelecaoCodigo){
+  if (!estoque_apiConfigurada()) return;
+  try {
+    estoque_state.obras = await estoque_apiGet('obras', {});
+  } catch (err){
+    estoque_toast(err.message, true);
+    return;
+  }
+  const ativas = estoque_state.obras.filter(o => o.Status !== 'Encerrada');
+
+  const alvo = manterSelecaoCodigo || (estoque_state.obraAtual && estoque_state.obraAtual.Codigo);
+  let selecionada = ativas.find(o => String(o.Codigo) === String(alvo));
+  if (!selecionada) selecionada = ativas[0] || null;
+  estoque_state.obraAtual = selecionada;
+
+  estoque_renderObraPills(ativas);
+  estoque_atualizarViewsDependentesDeObra();
+}
+
+function estoque_renderObraPills(ativas){
+  const container = document.getElementById('estoque-obra-pills');
+  const banner = document.getElementById('estoque-obra-empty-banner');
+  const acoes = document.querySelector('.obra-actions');
+
+  banner.classList.toggle('hidden', ativas.length !== 0);
+  acoes.classList.toggle('hidden', !estoque_state.obraAtual);
+
+  const pills = ativas.map(o => `
+    <button class="obra-pill ${estoque_state.obraAtual && String(estoque_state.obraAtual.Codigo) === String(o.Codigo) ? 'active' : ''}"
+      onclick="estoque_selecionarObra('${o.Codigo}')">${o.Nome}</button>
+  `).join('');
+  container.innerHTML = pills + `<button class="obra-pill add" onclick="estoque_abrirModal('estoque-modal-nova-obra')">+ Nova obra</button>`;
+}
+
+function estoque_selecionarObra(codigo){
+  const obra = estoque_state.obras.find(o => String(o.Codigo) === String(codigo));
+  if (!obra) return;
+  estoque_state.obraAtual = obra;
+  estoque_renderObraPills(estoque_state.obras.filter(o => o.Status !== 'Encerrada'));
+  estoque_atualizarViewsDependentesDeObra();
+}
+
+function estoque_atualizarViewsDependentesDeObra(){
+  const viewAtiva = document.querySelector('.est-view.active');
+  if (!viewAtiva) return;
+  if (viewAtiva.id === 'view-dashboard') estoque_carregarDashboard();
+  if (viewAtiva.id === 'view-emuso') estoque_carregarEmUso();
+}
+
+async function estoque_salvarNovaObra(){
+  const codigo = document.getElementById('estoque-input-obra-codigo').value.trim();
+  const nome = document.getElementById('estoque-input-obra-nome').value.trim();
+  if (!codigo || !nome){ estoque_toast('Preencha código e nome da obra.', true); return; }
+  try {
+    await estoque_apiPost('criarObra', { codigo, nome });
+    estoque_toast('Obra criada.');
+    estoque_fecharModal('estoque-modal-nova-obra');
+    document.getElementById('estoque-input-obra-codigo').value = '';
+    document.getElementById('estoque-input-obra-nome').value = '';
+    await estoque_carregarObras(codigo);
+  } catch (err){ estoque_toast(err.message, true); }
+}
+
+function estoque_abrirModalEncerrarObra(){
+  if (!estoque_state.obraAtual){ estoque_toast('Selecione uma obra primeiro.', true); return; }
+  document.getElementById('estoque-encerrar-obra-info').textContent = `Obra: ${estoque_state.obraAtual.Codigo} — ${estoque_state.obraAtual.Nome}`;
+  estoque_abrirModal('estoque-modal-encerrar-obra');
+}
+async function estoque_confirmarEncerrarObra(){
+  try {
+    await estoque_apiPost('encerrarObra', { codigo: estoque_state.obraAtual.Codigo });
+    estoque_toast('Obra encerrada.');
+    estoque_fecharModal('estoque-modal-encerrar-obra');
+    estoque_state.obraAtual = null;
+    await estoque_carregarObras();
+  } catch (err){ estoque_toast(err.message, true); }
+}
+
+function estoque_abrirModalExcluirObra(){
+  if (!estoque_state.obraAtual){ estoque_toast('Selecione uma obra primeiro.', true); return; }
+  document.getElementById('estoque-excluir-obra-info').textContent = `Obra: ${estoque_state.obraAtual.Codigo} — ${estoque_state.obraAtual.Nome}`;
+  document.getElementById('estoque-input-senha-exclusao').value = '';
+  estoque_abrirModal('estoque-modal-excluir-obra');
+}
+async function estoque_confirmarExcluirObra(){
+  const senha = document.getElementById('estoque-input-senha-exclusao').value;
+  if (!senha){ estoque_toast('Digite a senha.', true); return; }
+  try {
+    await estoque_apiPost('excluirObra', { codigo: estoque_state.obraAtual.Codigo, senha });
+    estoque_toast('Obra excluída.');
+    estoque_fecharModal('estoque-modal-excluir-obra');
+    estoque_state.obraAtual = null;
+    await estoque_carregarObras();
+  } catch (err){ estoque_toast(err.message, true); }
+}
+
+/* =======================================================================
+   NAVEGAÇÃO ENTRE VIEWS / SUBTABS
+   ======================================================================= */
+function estoque_mudarView(nome){
+  document.querySelectorAll('.est-tab').forEach(t => t.classList.toggle('active', t.dataset.view === nome));
+  document.querySelectorAll('.est-view').forEach(v => v.classList.toggle('active', v.id === 'estoque-view-' + nome));
+  if (nome === 'dashboard') estoque_carregarDashboard();
+  if (nome === 'saida') estoque_carregarCadastro();
+  if (nome === 'emuso') { estoque_carregarCadastro(); estoque_carregarEmUso(); }
+}
+function estoque_mudarSubtab(nome){
+  document.querySelectorAll('.est-subtab').forEach(t => t.classList.toggle('active', t.dataset.pane === nome));
+  document.querySelectorAll('.est-dash-pane').forEach(p => p.classList.toggle('active', p.id === 'estoque-dash-' + nome));
+  if (nome === 'pendentes') estoque_carregarPedidosPendentes();
+}
+
+/* =======================================================================
+   LEITURA DO PDF (pdf.js) + PARSER DO PEDIDO SIENGE
+   ======================================================================= */
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+async function estoque_extrairTextoPdf(file){
+  const buffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+  let texto = '';
+  for (let p = 1; p <= pdf.numPages; p++){
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    texto += content.items.map(it => it.str).join(' ') + ' ';
+  }
+  return texto.replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Isola o(s) trecho(s) de texto que correspondem à tabela de itens,
+ * lidando com pedidos de mais de uma página (o cabeçalho da tabela
+ * pode se repetir). Cada trecho vai do fim do cabeçalho da tabela até
+ * "Cond. pagamento" ou até o próximo cabeçalho de tabela, o que vier antes.
+ */
+function estoque_extrairSegmentosTabela(texto){
+  const headerRegex = /Insumo\s+Quantidade\s+Unid\..*?Referência/g;
+  const posicoes = [];
+  let m;
+  while ((m = headerRegex.exec(texto)) !== null){
+    posicoes.push(m.index + m[0].length);
+  }
+  const segmentos = posicoes.map((inicio, i) => {
+    const fimCond = texto.indexOf('Cond. pagamento', inicio);
+    const proximoHeader = (i + 1 < posicoes.length) ? posicoes[i + 1] : texto.length;
+    let fim = proximoHeader;
+    if (fimCond !== -1 && fimCond < proximoHeader) fim = fimCond;
+    return texto.slice(inicio, fim);
+  });
+  return segmentos.join(' ');
+}
+
+function estoque_parsePedido(texto){
+  const headerMatch = texto.match(/Pedido\s+(\d+)\s+Data do pedido\s+(\d{2}\/\d{2}\/\d{4})/);
+  if (!headerMatch) throw new Error('Não foi possível identificar o número do pedido neste PDF.');
+
+  const numeroPedido = headerMatch[1];
+  const [dd, mm, yyyy] = headerMatch[2].split('/');
+  const dataPedidoISO = `${yyyy}-${mm}-${dd}`;
+
+  const obraMatch = texto.match(/Obra\s+(\d+)\s*-\s*(.+?)\s*Local entrega/);
+  const fornecedorMatch = texto.match(/Razão social\s+(.+?)\s*Endereço/);
+
+  const textoTabela = estoque_extrairSegmentosTabela(texto);
+
+  // Campos da linha de dados, na ordem: Quantidade, Unid., Preço unit.,
+  // Desc(R$), %Desc, %IPI, %Acr, Preço final, Data previsão.
+  const itemRegex = /(\d+)\s*-\s*(.+?)(?:\s*Observações:.*?)?\s*(\d[\d.]*,\d{4})\s+(\S+)\s+[\d.]+,\d{2,4}\s+[\d.]+,\d{2}\s+[\d.]+,\d{2}\s+[\d.]+,\d{2}\s+[\d.]+,\d{2}\s+[\d.]+,\d{2}\s+\d{2}\/\d{2}\/\d{4}/g;
+
+  const itens = [];
+  let m;
+  while ((m = itemRegex.exec(textoTabela)) !== null){
+    itens.push({
+      codigo: m[1],
+      nome: m[2].replace(/\s+/g, ' ').trim(),
+      quantidade: estoque_parseNumeroBR(m[3]),
+      unidade: m[4]
+    });
+  }
+
+  if (itens.length === 0) throw new Error('Não foram encontrados itens neste PDF. Confira se é um Pedido de Compra do SIENGE.');
+
+  return {
+    numeroPedido,
+    dataPedido: dataPedidoISO,
+    obraCodigo: obraMatch ? obraMatch[1] : '',
+    obraNome: obraMatch ? obraMatch[2].trim() : '',
+    fornecedor: fornecedorMatch ? fornecedorMatch[1].trim() : '',
+    itens
+  };
+}
+
+/* =======================================================================
+   VIEW: PEDIDO / ENTRADA
+   ======================================================================= */
+async function estoque_onPdfSelecionado(ev){
+  const file = ev.target.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('estoque-pdf-status');
+  statusEl.textContent = 'Lendo o PDF…';
+  try {
+    const texto = await estoque_extrairTextoPdf(file);
+    const pedidoExtraido = estoque_parsePedido(texto);
+    statusEl.textContent = `Pedido ${pedidoExtraido.numeroPedido} lido com sucesso (${pedidoExtraido.itens.length} ${pedidoExtraido.itens.length === 1 ? 'item' : 'itens'}).`;
+    await estoque_enviarPedidoParaServidor(pedidoExtraido);
+  } catch (err){
+    statusEl.textContent = 'Erro ao ler o PDF: ' + err.message;
+    estoque_toast(err.message, true);
+  }
+}
+
+async function estoque_buscarPedidoPorNumero(){
+  const numero = document.getElementById('estoque-busca-numero').value.trim();
+  if (!numero){ estoque_toast('Digite o número do pedido.', true); return; }
+  try {
+    const data = await estoque_apiGet('pedido', { numero });
+    if (!data.existe){
+      estoque_toast('Esse pedido ainda não foi lançado. Envie o PDF dele primeiro.', true);
+      return;
+    }
+    estoque_state.pedidoAtual = data.pedido;
+    estoque_state.itensPedidoAtual = data.itens;
+    estoque_renderPedidoInfo();
+  } catch (err){
+    estoque_toast(err.message, true);
+  }
+}
+
+async function estoque_enviarPedidoParaServidor(pedidoExtraido){
+  const data = await estoque_apiPost('consultarOuCriarPedido', pedidoExtraido);
+  estoque_state.pedidoAtual = {
+    NumeroPedido: pedidoExtraido.numeroPedido,
+    DataPedido: pedidoExtraido.dataPedido,
+    ObraCodigo: pedidoExtraido.obraCodigo,
+    ObraNome: pedidoExtraido.obraNome,
+    Fornecedor: pedidoExtraido.fornecedor
+  };
+  estoque_state.itensPedidoAtual = data.itens;
+  if (data.novo) estoque_toast(`Pedido ${pedidoExtraido.numeroPedido} cadastrado no sistema.`);
+  else estoque_toast(`Pedido ${pedidoExtraido.numeroPedido} já existia — mostrando o que ainda falta chegar.`);
+
+  // garante que a obra do pedido (pode ter sido criada agora) fique selecionada
+  if (pedidoExtraido.obraCodigo && (!estoque_state.obraAtual || String(estoque_state.obraAtual.Codigo) !== String(pedidoExtraido.obraCodigo))){
+    await estoque_carregarObras(pedidoExtraido.obraCodigo);
+  }
+
+  estoque_renderPedidoInfo();
+}
+
+function estoque_renderPedidoInfo(){
+  const box = document.getElementById('estoque-pedido-info');
+  box.classList.remove('hidden');
+  const p = estoque_state.pedidoAtual;
+  document.getElementById('estoque-pedido-cabecalho').innerHTML =
+    `Pedido <strong>${p.NumeroPedido}</strong> · ${estoque_formatData(p.DataPedido)}` +
+    (p.ObraNome ? ` · Obra: ${p.ObraCodigo} - ${p.ObraNome}` : '') +
+    (p.Fornecedor ? ` · ${p.Fornecedor}` : '');
+
+  const lista = document.getElementById('estoque-itens-pedido-lista');
+  const pendentes = estoque_state.itensPedidoAtual.filter(it => it.Status !== 'Cancelado');
+
+  if (pendentes.length === 0){
+    lista.innerHTML = '<div class="empty-state">Todos os itens deste pedido já foram recebidos ou cancelados.</div>';
+    return;
+  }
+
+  lista.innerHTML = pendentes.map(it => {
+    const completo = it.Status === 'Completo';
+    return `
+    <div class="item-row" data-codigo="${it.Codigo}">
+      <div>
+        <div class="nome">${it.Codigo} — ${it.Nome}</div>
+        <div class="meta">
+          Pedido: ${it.QuantidadePedida} · Recebido: ${it.QuantidadeRecebida || 0}
+          ${completo ? '<span class="badge badge-green" style="margin-left:6px;">Completo</span>' : `<span class="badge badge-orange" style="margin-left:6px;">Faltam ${it.QuantidadePendente}</span>`}
+        </div>
+      </div>
+      <input type="number" class="input-qtd-recebida" min="0" step="0.01"
+        placeholder="Qtd. recebida agora" ${completo ? 'disabled' : ''}
+        max="${it.QuantidadePendente}">
+      <button class="btn btn-danger btn-sm" ${completo ? 'disabled' : ''} onclick="estoque_confirmarCancelarItem('${it.Codigo}', '${(it.Nome||'').replace(/'/g,"\\'")}')">Cancelar</button>
+    </div>`;
+  }).join('');
+}
+
+async function estoque_confirmarEntrada(){
+  const linhas = document.querySelectorAll('#estoque-itens-pedido-lista .item-row');
+  const itensRecebidos = [];
+  linhas.forEach(row => {
+    const codigo = row.dataset.codigo;
+    const input = row.querySelector('.input-qtd-recebida');
+    const qtd = parseFloat(input.value);
+    if (qtd && qtd > 0){
+      const item = estoque_state.itensPedidoAtual.find(it => String(it.Codigo) === String(codigo));
+      itensRecebidos.push({ codigo, nome: item ? item.Nome : '', quantidadeRecebida: qtd });
+    }
+  });
+  if (itensRecebidos.length === 0){ estoque_toast('Informe a quantidade recebida de pelo menos um item.', true); return; }
+
+  const quemRecebeu = document.getElementById('estoque-entrada-recebeu').value.trim();
+  const quemLancou = document.getElementById('estoque-entrada-lancou').value.trim();
+  const data = document.getElementById('estoque-entrada-data').value || estoque_hojeISO();
+  if (!quemRecebeu || !quemLancou){ estoque_toast('Preencha quem recebeu e quem está lançando.', true); return; }
+
+  try {
+    await estoque_apiPost('registrarEntrada', {
+      numeroPedido: estoque_state.pedidoAtual.NumeroPedido,
+      data, quemRecebeu, quemLancou,
+      itens: itensRecebidos
+    });
+    estoque_toast('Entrada registrada com sucesso.');
+    document.getElementById('estoque-pedido-info').classList.add('hidden');
+    document.getElementById('estoque-pdf-input').value = '';
+    document.getElementById('estoque-busca-numero').value = '';
+    document.getElementById('estoque-pdf-status').textContent = 'Selecione o PDF gerado pelo SIENGE.';
+    estoque_state.pedidoAtual = null; estoque_state.itensPedidoAtual = [];
+  } catch (err){
+    estoque_toast(err.message, true);
+  }
+}
+
+function estoque_confirmarCancelarItem(codigo, nome){
+  document.getElementById('estoque-modal-motivo-titulo').textContent = `Cancelar saldo — ${nome}`;
+  document.getElementById('estoque-input-motivo').value = '';
+  document.getElementById('estoque-btn-confirmar-motivo').onclick = async () => {
+    const motivo = document.getElementById('estoque-input-motivo').value.trim();
+    try {
+      await estoque_apiPost('cancelarItem', { numeroPedido: estoque_state.pedidoAtual.NumeroPedido, codigo, motivo });
+      estoque_toast('Item cancelado.');
+      estoque_fecharModal('estoque-modal-motivo');
+      const data = await estoque_apiGet('pedido', { numero: estoque_state.pedidoAtual.NumeroPedido });
+      estoque_state.itensPedidoAtual = data.itens;
+      estoque_renderPedidoInfo();
+    } catch (err){ estoque_toast(err.message, true); }
+  };
+  estoque_abrirModal('estoque-modal-motivo');
+}
+
+function estoque_confirmarCancelarPedidoInteiro(){
+  document.getElementById('estoque-modal-motivo-titulo').textContent = `Cancelar saldo do pedido ${estoque_state.pedidoAtual.NumeroPedido} inteiro`;
+  document.getElementById('estoque-input-motivo').value = '';
+  document.getElementById('estoque-btn-confirmar-motivo').onclick = async () => {
+    const motivo = document.getElementById('estoque-input-motivo').value.trim();
+    try {
+      await estoque_apiPost('cancelarPedido', { numeroPedido: estoque_state.pedidoAtual.NumeroPedido, motivo });
+      estoque_toast('Saldo do pedido cancelado.');
+      estoque_fecharModal('estoque-modal-motivo');
+      document.getElementById('estoque-pedido-info').classList.add('hidden');
+      estoque_state.pedidoAtual = null; estoque_state.itensPedidoAtual = [];
+    } catch (err){ estoque_toast(err.message, true); }
+  };
+  estoque_abrirModal('estoque-modal-motivo');
+}
+
+/* =======================================================================
+   VIEW: SAÍDA
+   ======================================================================= */
+let estoque_cadastroCarregado = false;
+async function estoque_carregarCadastro(){
+  if (estoque_cadastroCarregado) return;
+  try {
+    estoque_state.cadastro = await estoque_apiGet('cadastro', {});
+    estoque_cadastroCarregado = true;
+  } catch (err){ /* silencioso — tenta de novo na próxima ação */ }
+}
+
+let estoque_insumoSelecionadoSaida = null;
+function estoque_filtrarAutocompleteSaida(){
+  const termo = estoque_normalize(document.getElementById('estoque-saida-insumo').value);
+  const listEl = document.getElementById('estoque-saida-autocomplete-list');
+  estoque_insumoSelecionadoSaida = null;
+  if (!termo){ listEl.classList.remove('show'); listEl.innerHTML=''; return; }
+  const resultados = estoque_state.cadastro.filter(c =>
+    estoque_normalize(c.Codigo).indexOf(termo) === 0 || estoque_normalize(c.Nome).indexOf(termo) !== -1
+  ).slice(0, 20);
+  if (resultados.length === 0){ listEl.classList.remove('show'); listEl.innerHTML=''; return; }
+  listEl.innerHTML = resultados.map(c =>
+    `<div class="autocomplete-item" onclick='estoque_selecionarInsumoSaida(${JSON.stringify(c.Codigo)}, ${JSON.stringify(c.Nome)}, ${JSON.stringify(c.Unidade)})'>
+      ${c.Codigo} — ${c.Nome} <small>${c.Unidade || ''}</small>
+    </div>`
+  ).join('');
+  listEl.classList.add('show');
+}
+function estoque_selecionarInsumoSaida(codigo, nome, unidade){
+  estoque_insumoSelecionadoSaida = { codigo, nome, unidade };
+  document.getElementById('estoque-saida-insumo').value = `${codigo} — ${nome}`;
+  document.getElementById('estoque-saida-autocomplete-list').classList.remove('show');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.est-autocomplete-wrap')) document.getElementById('estoque-saida-autocomplete-list').classList.remove('show');
+});
+
+async function estoque_confirmarSaida(){
+  if (!estoque_state.obraAtual){ estoque_toast('Selecione uma obra primeiro.', true); return; }
+  if (!estoque_insumoSelecionadoSaida){ estoque_toast('Selecione um insumo da lista.', true); return; }
+  const quantidade = parseFloat(document.getElementById('estoque-saida-quantidade').value);
+  const destinadoPara = document.getElementById('estoque-saida-destinado').value.trim();
+  const quemLancou = document.getElementById('estoque-saida-lancou').value.trim();
+  const data = document.getElementById('estoque-saida-data').value || estoque_hojeISO();
+  if (!quantidade || quantidade <= 0){ estoque_toast('Informe a quantidade.', true); return; }
+  if (!destinadoPara || !quemLancou){ estoque_toast('Preencha para quem foi destinado e quem está lançando.', true); return; }
+
+  try {
+    await estoque_apiPost('registrarSaida', {
+      data, codigo: estoque_insumoSelecionadoSaida.codigo, nome: estoque_insumoSelecionadoSaida.nome,
+      quantidade, destinadoPara, quemLancou, obraCodigo: estoque_state.obraAtual.Codigo
+    });
+    estoque_toast('Saída registrada com sucesso.');
+    document.getElementById('estoque-saida-insumo').value = '';
+    document.getElementById('estoque-saida-quantidade').value = '';
+    document.getElementById('estoque-saida-destinado').value = '';
+    estoque_insumoSelecionadoSaida = null;
+  } catch (err){ estoque_toast(err.message, true); }
+}
+
+/* =======================================================================
+   VIEW: EM USO
+   ======================================================================= */
+let estoque_insumoSelecionadoEmUso = null;
+function estoque_filtrarAutocompleteEmUso(){
+  const termo = estoque_normalize(document.getElementById('estoque-emuso-insumo').value);
+  const listEl = document.getElementById('estoque-emuso-autocomplete-list');
+  estoque_insumoSelecionadoEmUso = null;
+  if (!termo){ listEl.classList.remove('show'); listEl.innerHTML=''; return; }
+  const resultados = estoque_state.cadastro.filter(c =>
+    estoque_normalize(c.Codigo).indexOf(termo) === 0 || estoque_normalize(c.Nome).indexOf(termo) !== -1
+  ).slice(0, 20);
+  if (resultados.length === 0){ listEl.classList.remove('show'); listEl.innerHTML=''; return; }
+  listEl.innerHTML = resultados.map(c =>
+    `<div class="autocomplete-item" onclick='estoque_selecionarInsumoEmUso(${JSON.stringify(c.Codigo)}, ${JSON.stringify(c.Nome)})'>
+      ${c.Codigo} — ${c.Nome} <small>${c.Unidade || ''}</small>
+    </div>`
+  ).join('');
+  listEl.classList.add('show');
+}
+function estoque_selecionarInsumoEmUso(codigo, nome){
+  estoque_insumoSelecionadoEmUso = { codigo, nome };
+  document.getElementById('estoque-emuso-insumo').value = `${codigo} — ${nome}`;
+  document.getElementById('estoque-emuso-autocomplete-list').classList.remove('show');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.est-autocomplete-wrap')) document.getElementById('estoque-emuso-autocomplete-list')?.classList.remove('show');
+});
+
+async function estoque_confirmarEmUso(){
+  if (!estoque_state.obraAtual){ estoque_toast('Selecione uma obra primeiro.', true); return; }
+  if (!estoque_insumoSelecionadoEmUso){ estoque_toast('Selecione um insumo da lista.', true); return; }
+  const quantidade = parseFloat(document.getElementById('estoque-emuso-quantidade').value);
+  const destinadoPara = document.getElementById('estoque-emuso-destinado').value.trim();
+  const quemLancou = document.getElementById('estoque-emuso-lancou').value.trim();
+  const data = document.getElementById('estoque-emuso-data').value || estoque_hojeISO();
+  if (!quantidade || quantidade <= 0){ estoque_toast('Informe a quantidade.', true); return; }
+  if (!destinadoPara || !quemLancou){ estoque_toast('Preencha quem está usando e quem está lançando.', true); return; }
+
+  try {
+    await estoque_apiPost('registrarEmUso', {
+      data, codigo: estoque_insumoSelecionadoEmUso.codigo, nome: estoque_insumoSelecionadoEmUso.nome,
+      quantidade, destinadoPara, quemLancou, obraCodigo: estoque_state.obraAtual.Codigo
+    });
+    estoque_toast('Saída temporária registrada.');
+    document.getElementById('estoque-emuso-insumo').value = '';
+    document.getElementById('estoque-emuso-quantidade').value = '';
+    document.getElementById('estoque-emuso-destinado').value = '';
+    estoque_insumoSelecionadoEmUso = null;
+    estoque_carregarEmUso();
+  } catch (err){ estoque_toast(err.message, true); }
+}
+
+async function estoque_carregarEmUso(){
+  const container = document.getElementById('estoque-lista-em-uso');
+  if (!estoque_state.obraAtual){ container.innerHTML = '<div class="empty-state">Selecione uma obra para ver os itens em uso.</div>'; return; }
+  container.innerHTML = '<div class="empty-state">Carregando…</div>';
+  try {
+    const abertos = await estoque_apiGet('emUsoAbertos', { obraCodigo: estoque_state.obraAtual.Codigo });
+    if (abertos.length === 0){
+      container.innerHTML = '<div class="empty-state">Nenhum item em uso no momento.</div>';
+      return;
+    }
+    container.innerHTML = abertos.map(it => `
+      <div class="item-row" style="grid-template-columns:1fr 110px 140px;">
+        <div>
+          <div class="nome">${it.Codigo} — ${it.Nome}</div>
+          <div class="meta">Qtd: ${it.Quantidade} · Com: ${it.DestinadoPara} · Desde ${estoque_formatData(it.DataSaida)} · Lançado por ${it.QuemLancou}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick='estoque_abrirModalRetorno(${JSON.stringify(it.IdRegistro)}, ${JSON.stringify(it.Codigo + " — " + it.Nome)})'>Devolver</button>
+        <button class="btn btn-danger btn-sm" onclick='estoque_confirmarConversaoParaSaida(${JSON.stringify(it.IdRegistro)}, ${JSON.stringify(it.Codigo + " — " + it.Nome)})'>Não vai voltar</button>
+      </div>
+    `).join('');
+  } catch (err){
+    container.innerHTML = `<div class="empty-state">Erro ao carregar: ${err.message}</div>`;
+  }
+}
+
+function estoque_abrirModalRetorno(idRegistro, descricao){
+  document.getElementById('estoque-modal-retorno-info').textContent = descricao;
+  document.getElementById('estoque-input-data-retorno').value = estoque_hojeISO();
+  document.getElementById('estoque-btn-confirmar-retorno').onclick = async () => {
+    const dataRetorno = document.getElementById('estoque-input-data-retorno').value || estoque_hojeISO();
+    try {
+      await estoque_apiPost('registrarDevolucaoEmUso', { idRegistro, dataRetorno });
+      estoque_toast('Devolução registrada.');
+      estoque_fecharModal('estoque-modal-retorno');
+      estoque_carregarEmUso();
+    } catch (err){ estoque_toast(err.message, true); }
+  };
+  estoque_abrirModal('estoque-modal-retorno');
+}
+
+async function estoque_confirmarConversaoParaSaida(idRegistro, descricao){
+  const ok = confirm(`Confirmar que "${descricao}" não vai retornar? Isso vai lançar uma saída definitiva dessa quantidade.`);
+  if (!ok) return;
+  try {
+    await estoque_apiPost('converterEmUsoParaSaida', { idRegistro, data: estoque_hojeISO() });
+    estoque_toast('Convertido em saída definitiva.');
+    estoque_carregarEmUso();
+  } catch (err){ estoque_toast(err.message, true); }
+}
+
+/* =======================================================================
+   DASHBOARD
+   ======================================================================= */
+async function estoque_carregarDashboard(){
+  if (!estoque_state.obraAtual){
+    ['tbody-estoque','tbody-historico','tbody-ranking'].forEach(id => {
+      document.getElementById(id).innerHTML = `<tr><td colspan="6"><div class="empty-state">Selecione uma obra para ver o dashboard.</div></td></tr>`;
+    });
+    return;
+  }
+  try {
+    const dataInicio = document.getElementById('estoque-hist-data-inicio').value;
+    const dataFim = document.getElementById('estoque-hist-data-fim').value;
+    const data = await estoque_apiGet('dashboard', { obraCodigo: estoque_state.obraAtual.Codigo, dataInicio, dataFim });
+    estoque_state.dashboard = data;
+    estoque_renderEstoqueAtual();
+    estoque_renderHistorico();
+    estoque_renderRanking();
+  } catch (err){ estoque_toast(err.message, true); }
+}
+
+function estoque_renderEstoqueAtual(){
+  const termo = estoque_normalize(document.getElementById('estoque-filtro-estoque').value);
+  const tbody = document.getElementById('estoque-tbody-estoque');
+  let lista = estoque_state.dashboard.estoqueAtual || [];
+  if (termo){
+    lista = lista.filter(it => estoque_normalize(it.codigo).indexOf(termo) === 0 || estoque_normalize(it.nome).indexOf(termo) !== -1);
+  }
+  lista = [...lista].sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
+
+  if (lista.length === 0){
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Nenhum insumo encontrado.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(it => `
+    <tr class="clickable" onclick="estoque_abrirDetalheInsumo('${it.codigo}')">
+      <td>${it.codigo}</td>
+      <td>${it.nome}</td>
+      <td>${it.unidade || ''}</td>
+      <td class="num">${it.estoqueAtual}</td>
+      <td class="num">${it.emUso ? it.emUso : '—'}</td>
+      <td>${it.estoqueBaixo ? '<span class="badge badge-red">Estoque baixo</span>' : ''}</td>
+    </tr>
+  `).join('');
+}
+
+const estoque_filtroCodigoHistoricoEl = () => document.getElementById('estoque-hist-filtro-codigo');
+
+function estoque_renderHistorico(){
+  const termoCodigo = estoque_normalize(estoque_filtroCodigoHistoricoEl().value);
+  const tbody = document.getElementById('estoque-tbody-historico');
+  let lista = estoque_state.dashboard.movimentacoes || [];
+  if (termoCodigo) lista = lista.filter(m => estoque_normalize(m.codigo).indexOf(termoCodigo) === 0);
+
+  if (lista.length === 0){
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">Nenhuma movimentação no período.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(m => `
+    <tr>
+      <td>${estoque_formatData(m.data)}</td>
+      <td>${m.tipo === 'entrada' ? '<span class="badge badge-green">Entrada</span>' : '<span class="badge badge-orange">Saída</span>'}</td>
+      <td>${m.codigo} — ${m.nome}</td>
+      <td class="num">${m.quantidade}</td>
+      <td>${m.tipo === 'entrada' ? `Recebeu: ${m.quemRecebeu || '—'}${m.numeroPedido ? ' · Pedido ' + m.numeroPedido : ''}` : `Destinado a: ${m.destinadoPara || '—'}`}</td>
+      <td>${m.quemLancou || '—'}</td>
+    </tr>
+  `).join('');
+}
+
+function estoque_renderRanking(){
+  const tbody = document.getElementById('estoque-tbody-ranking');
+  const lista = estoque_state.dashboard.ranking || [];
+  if (lista.length === 0){
+    tbody.innerHTML = `<tr><td colspan="2"><div class="empty-state">Nenhuma saída registrada no período.</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lista.map(r => `
+    <tr><td>${r.destinatario}</td><td class="num">${r.total}</td></tr>
+  `).join('');
+}
+
+async function estoque_carregarPedidosPendentes(){
+  const container = document.getElementById('estoque-lista-pendentes');
+  if (!estoque_state.obraAtual){ container.innerHTML = '<div class="card"><div class="empty-state">Selecione uma obra.</div></div>'; return; }
+  container.innerHTML = '<div class="empty-state">Carregando…</div>';
+  try {
+    const pedidos = await estoque_apiGet('pedidosPendentes', { obraCodigo: estoque_state.obraAtual.Codigo });
+    if (pedidos.length === 0){
+      container.innerHTML = '<div class="card"><div class="empty-state">Nenhum pedido em aberto no momento.</div></div>';
+      return;
+    }
+    container.innerHTML = pedidos.map(p => `
+      <div class="card">
+        <div class="flex-between">
+          <div>
+            <strong>Pedido ${p.NumeroPedido}</strong>
+            <span class="helper-text"> · ${estoque_formatData(p.DataPedido)}${p.Fornecedor ? ' · ' + p.Fornecedor : ''}</span>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="estoque_irParaEntradaComPedido('${p.NumeroPedido}')">Registrar entrada</button>
+        </div>
+        <div class="divider"></div>
+        ${p.itens.map(it => `
+          <div class="flex-between" style="padding:6px 0;">
+            <span>${it.Codigo} — ${it.Nome}</span>
+            <span class="badge badge-orange">Faltam ${it.QuantidadePendente}</span>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+  } catch (err){
+    container.innerHTML = `<div class="card"><div class="empty-state">Erro ao carregar: ${err.message}</div></div>`;
+  }
+}
+
+function estoque_irParaEntradaComPedido(numero){
+  estoque_mudarView('pedido');
+  document.getElementById('estoque-busca-numero').value = numero;
+  estoque_buscarPedidoPorNumero();
+}
+
+/* ---------- Detalhe do insumo (modal) ---------- */
+function estoque_abrirDetalheInsumo(codigo){
+  const info = (estoque_state.dashboard.estoqueAtual || []).find(it => String(it.codigo) === String(codigo));
+  if (!info) return;
+  const movs = (estoque_state.dashboard.movimentacoes || []).filter(m => String(m.codigo) === String(codigo));
+
+  const rankingMap = {};
+  movs.filter(m => m.tipo === 'saida').forEach(m => {
+    const key = m.destinadoPara || 'Não informado';
+    rankingMap[key] = (rankingMap[key] || 0) + (Number(m.quantidade) || 0);
+  });
+  const rankingInsumo = Object.entries(rankingMap).map(([destinatario,total]) => ({destinatario,total})).sort((a,b)=>b.total-a.total);
+
+  const html = `
+    <h2>${info.codigo} — ${info.nome}</h2>
+    <p class="helper-text">Unidade: ${info.unidade || '—'} ${info.estoqueBaixo ? '<span class="badge badge-red" style="margin-left:8px;">Estoque baixo</span>' : ''}</p>
+    <div class="grid grid-3" style="margin-top:14px;">
+      <div class="card" style="margin-bottom:0;">
+        <p class="card-title">Estoque atual</p>
+        <div style="font-size:24px;font-weight:800;">${info.estoqueAtual}</div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <p class="card-title">Quantidade mínima</p>
+        <div style="font-size:24px;font-weight:800;">${info.quantidadeMinima || 0}</div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <p class="card-title">Em uso agora</p>
+        <div style="font-size:24px;font-weight:800;">${info.emUso || 0}</div>
+      </div>
+    </div>
+
+    <p class="modal-section-title">Quem mais requisitou este insumo</p>
+    ${rankingInsumo.length === 0 ? '<div class="empty-state">Sem saídas registradas.</div>' :
+      rankingInsumo.map(r => `<div class="flex-between" style="padding:5px 0;"><span>${r.destinatario}</span><span class="num">${r.total}</span></div>`).join('')}
+
+    <p class="modal-section-title">Histórico de movimentação</p>
+    ${movs.length === 0 ? '<div class="empty-state">Sem movimentações no período filtrado no histórico.</div>' :
+      movs.map(m => `
+        <div class="flex-between" style="padding:6px 0;border-bottom:1px solid var(--border);">
+          <span>${estoque_formatData(m.data)} — ${m.tipo === 'entrada' ? 'Entrada' : 'Saída'}</span>
+          <span class="num">${m.quantidade}</span>
+        </div>
+      `).join('')}
+  `;
+  document.getElementById('estoque-modal-insumo-conteudo').innerHTML = html;
+  estoque_abrirModal('estoque-modal-insumo');
+}
+
+/* =======================================================================
+   INICIALIZAÇÃO
+   Disparada pelo hub via evento 'hub-navigate' (não DOMContentLoaded —
+   este módulo é injetado depois que a página principal já carregou).
+   estoque_iniciado evita repetir a configuração toda vez que o usuário
+   volta pra esta aba.
+   ======================================================================= */
+let estoque_iniciado = false;
+function estoque_initModule(){
+  if (estoque_iniciado) return;
+  estoque_iniciado = true;
+  document.getElementById('estoque-entrada-data').value = estoque_hojeISO();
+  document.getElementById('estoque-saida-data').value = estoque_hojeISO();
+  document.getElementById('estoque-emuso-data').value = estoque_hojeISO();
+  estoque_atualizarPillConexao();
+  if (estoque_apiConfigurada()) { estoque_carregarCadastro(); estoque_carregarObras(); }
+  else estoque_abrirConfigModal();
+}
+// Escuta a navegação do HUB: só inicializa quando o usuário entra no módulo Estoque
+window.addEventListener('hub-navigate', (e) => {
+  if (e.detail.module === 'estoque') estoque_initModule();
+});
+// Caso o usuário já esteja no módulo Estoque no momento do PIN (welcome screen pulado), o hub-ready também cobre
+window.addEventListener('hub-ready', () => {
+  if (hubCurrentModule === 'estoque') estoque_initModule();
+});
+</script>
+    </section>
+
   </main><!-- /hub-main -->
 
 </div><!-- /hub-app -->
@@ -8211,14 +9533,15 @@ document.addEventListener("change", handleChange);
 // HUB — LÓGICA DE NAVEGAÇÃO E USUÁRIOS (nome + PIN)
 // ════════════════════════════════════════════════════════════
 
-const HUB_MODULE_IDS = ['gestao','compra','pedidos','cronograma','cartoes','comprasrac'];
+const HUB_MODULE_IDS = ['gestao','compra','pedidos','cronograma','cartoes','comprasrac','estoque'];
 const HUB_MODULE_LABELS = {
   gestao: 'Gestão de Insumos',
   compra: 'Última Compra',
   pedidos: 'Pedidos em Atraso',
   cronograma: 'Cronograma',
   cartoes: 'Cartões de Obra',
-  comprasrac: 'Compras Racionalizadas'
+  comprasrac: 'Compras Racionalizadas',
+  estoque: 'Controle de Estoque'
 };
 
 let hubCurrentModule = null;
