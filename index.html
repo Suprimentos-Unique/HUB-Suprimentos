@@ -855,6 +855,33 @@ html, body {
 #hub-module-gestao .g-fam-tag.marcos{background:rgba(122,25,48,.2);border-color:rgba(122,25,48,.4);color:var(--g-accent);}
 #hub-module-gestao .g-fam-tag:hover{opacity:.65;}
 
+/* prog sub-tabs (Lista / Resumo) */
+#hub-module-gestao .g-prog-subtabs{display:flex;gap:8px;margin-bottom:1.2rem;flex-wrap:wrap;}
+#hub-module-gestao .g-prog-subtab{background:var(--g-surface);border:1px solid var(--g-border);color:var(--g-muted);font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:8px 16px;border-radius:7px;cursor:pointer;transition:all .15s;}
+#hub-module-gestao .g-prog-subtab:hover{border-color:var(--g-accent);color:var(--g-text);}
+#hub-module-gestao .g-prog-subtab.active{background:rgba(122,25,48,.22);border-color:var(--g-accent);color:var(--g-accent3);}
+
+/* resumo view */
+#hub-module-gestao .g-resumo-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.2rem;}
+#hub-module-gestao .g-resumo-card{background:var(--g-surface);border:1px solid var(--g-border);border-radius:10px;padding:1.2rem 1.4rem;position:relative;overflow:hidden;}
+#hub-module-gestao .g-resumo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--rc);}
+#hub-module-gestao .g-resumo-card-label{font-size:.66rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--g-muted);margin-bottom:8px;}
+#hub-module-gestao .g-resumo-card-value{font-family:'DM Mono',monospace;font-size:2rem;font-weight:500;color:var(--g-text);line-height:1;}
+#hub-module-gestao .g-resumo-card-pct{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--rc);margin-left:8px;}
+#hub-module-gestao .g-resumo-card-desc{font-size:.66rem;color:var(--g-muted);margin-top:6px;line-height:1.5;}
+#hub-module-gestao .g-resumo-bar{display:flex;width:100%;height:22px;border-radius:6px;overflow:hidden;margin-bottom:1.4rem;background:var(--g-surface2);border:1px solid var(--g-border);}
+#hub-module-gestao .g-resumo-bar-seg{height:100%;transition:width .3s;}
+#hub-module-gestao .g-resumo-block{background:var(--g-surface);border:1px solid var(--g-border);border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:1.2rem;}
+#hub-module-gestao .g-resumo-block-title{font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--g-accent3);margin-bottom:.9rem;}
+#hub-module-gestao .g-resumo-row{display:flex;align-items:center;gap:.7rem;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.76rem;}
+#hub-module-gestao .g-resumo-row:last-child{border-bottom:none;}
+#hub-module-gestao .g-resumo-row-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+#hub-module-gestao .g-resumo-row-label{flex:1;color:var(--g-text);}
+#hub-module-gestao .g-resumo-row-count{font-family:'DM Mono',monospace;font-weight:700;color:var(--g-text);}
+#hub-module-gestao .g-resumo-row-pct{font-family:'DM Mono',monospace;color:var(--g-muted);width:48px;text-align:right;}
+#hub-module-gestao .g-resumo-buyers{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media (max-width:900px){#hub-module-gestao .g-resumo-cards{grid-template-columns:1fr;}#hub-module-gestao .g-resumo-buyers{grid-template-columns:1fr;}}
+
 /* banners */
 #hub-module-gestao .g-prog-banner{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:.85rem 1.1rem;margin-bottom:1rem;font-size:.77rem;color:var(--g-accent3);line-height:1.6;}
 #hub-module-gestao .g-readonly-banner{background:rgba(248,113,113,.16);border:1px solid rgba(248,113,113,.32);border-radius:8px;padding:.75rem 1.1rem;margin-bottom:1rem;font-size:.76rem;color:var(--g-accent4);display:none;}
@@ -1307,6 +1334,11 @@ html, body {
 
   <!-- PROGRAMAÇÃO -->
   <div class="g-section" id="gestao-sec-programacao">
+    <div class="g-prog-subtabs">
+      <button class="g-prog-subtab active" data-view="lista" onclick="gestao_progSwitchView('lista')">📋 Lista</button>
+      <button class="g-prog-subtab" data-view="resumo" onclick="gestao_progSwitchView('resumo')">📈 Resumo</button>
+    </div>
+    <div id="gestao-prog-view-lista">
     <div class="g-prog-banner">💡 Gerada automaticamente. Comprador atribuído por família. Tipo de Fornecedor pelo histórico. Clique nas células <strong>✏</strong> para editar — salvo automaticamente na nuvem.</div>
     <div class="g-readonly-banner" id="gestao-readonly-banner">👁 Modo visitante — você pode visualizar mas não editar. Digite o PIN para ter acesso de edição.</div>
     <div id="gestao-buyer-panel"></div>
@@ -1352,6 +1384,8 @@ html, body {
       </select>
     </div>
     <div id="gestao-prog-content"></div>
+    </div>
+    <div id="gestao-prog-view-resumo" style="display:none"></div>
   </div>
 
   <!-- COTAÇÕES -->
@@ -2085,6 +2119,89 @@ function gestao_updateProgStats(){
   document.getElementById('gestao-sp4').textContent=d.filter(r=>r.responsavel==='MARCOS').length;
   document.getElementById('gestao-sp5').textContent=total?Math.round(armazem/total*100)+'%':'—';
   document.getElementById('gestao-sp6').textContent=total?Math.round(fabrica/total*100)+'%':'—';
+  if(typeof gestao_renderProgResumo==='function') gestao_renderProgResumo();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PROGRAMAÇÃO — sub-abas Lista / Resumo
+// ═══════════════════════════════════════════════════════════════
+let gestaoProgView='lista';
+function gestao_progSwitchView(v){
+  gestaoProgView=v;
+  document.querySelectorAll('.g-prog-subtab').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  document.getElementById('gestao-prog-view-lista').style.display=v==='lista'?'':'none';
+  document.getElementById('gestao-prog-view-resumo').style.display=v==='resumo'?'':'none';
+  if(v==='resumo') gestao_renderProgResumo();
+}
+// Status agrupados em 3 frentes:
+//  Avanço da tabela = PEDIDO EMITIDO + CANCELAR INSUMO + PUXAR NOTA (mesmo critério do card "% Avanço")
+//  Em andamento     = COTAÇÃO ENVIADA + COTAÇÃO RECEBIDA
+//  Pendente         = AGUARDANDO
+const GESTAO_RESUMO_GRUPOS={
+  avanco:{label:'Avanço da Tabela',color:'#16a34a',status:['PEDIDO EMITIDO','CANCELAR INSUMO','PUXAR NOTA'],desc:'Pedido emitido, cancelado ou nota a puxar'},
+  andamento:{label:'Em Andamento',color:'#d4920a',status:['COTAÇÃO ENVIADA','COTAÇÃO RECEBIDA'],desc:'Cotação enviada ou recebida'},
+  pendente:{label:'Pendente',color:'#dc2626',status:['AGUARDANDO'],desc:'Aguardando início da cotação'}
+};
+function gestao_progResumoGrupo(status){
+  for(const k in GESTAO_RESUMO_GRUPOS) if(GESTAO_RESUMO_GRUPOS[k].status.includes(status)) return k;
+  return null;
+}
+function gestao_renderProgResumo(){
+  const el=document.getElementById('gestao-prog-view-resumo');
+  if(!el) return;
+  const d=gestaoDB.programacao;
+  if(!d.length){ el.innerHTML=gestao_emptyImport('Programação de Compras'); return; }
+  const total=d.length;
+  const counts={avanco:0,andamento:0,pendente:0,outros:0};
+  const porStatus={};
+  d.forEach(r=>{
+    const g=gestao_progResumoGrupo(r.status);
+    if(g) counts[g]++; else counts.outros++;
+    porStatus[r.status||'—']=(porStatus[r.status||'—']||0)+1;
+  });
+  const pct=n=>total?Math.round(n/total*100):0;
+  const cards=['avanco','andamento','pendente'].map(k=>{
+    const grp=GESTAO_RESUMO_GRUPOS[k];
+    return `<div class="g-resumo-card" style="--rc:${grp.color}">
+      <div class="g-resumo-card-label">${grp.label}</div>
+      <span class="g-resumo-card-value">${counts[k]}</span><span class="g-resumo-card-pct">${pct(counts[k])}%</span>
+      <div class="g-resumo-card-desc">${grp.desc}</div>
+    </div>`;
+  }).join('');
+  const barSegs=['avanco','andamento','pendente'].map(k=>{
+    const grp=GESTAO_RESUMO_GRUPOS[k];
+    const w=pct(counts[k]);
+    return w?`<div class="g-resumo-bar-seg" style="width:${w}%;background:${grp.color}" title="${grp.label}: ${counts[k]} (${w}%)"></div>`:'';
+  }).join('')+(counts.outros?`<div class="g-resumo-bar-seg" style="width:${pct(counts.outros)}%;background:var(--g-muted)" title="Outros: ${counts.outros}"></div>`:'');
+  const statusOrder=['AGUARDANDO','COTAÇÃO ENVIADA','COTAÇÃO RECEBIDA','PEDIDO EMITIDO','CANCELAR INSUMO','PUXAR NOTA'];
+  const statusRows=statusOrder.filter(s=>porStatus[s]).map(s=>{
+    const g=gestao_progResumoGrupo(s);
+    const color=g?GESTAO_RESUMO_GRUPOS[g].color:'#8a8a8a';
+    const c=porStatus[s];
+    return `<div class="g-resumo-row"><span class="g-resumo-row-dot" style="background:${color}"></span><span class="g-resumo-row-label">${s.charAt(0)+s.slice(1).toLowerCase()}</span><span class="g-resumo-row-count">${c}</span><span class="g-resumo-row-pct">${pct(c)}%</span></div>`;
+  }).join('');
+  function buyerBlock(nome,key,cor){
+    const dr=d.filter(r=>r.responsavel===key);
+    const t=dr.length;
+    const rows=['avanco','andamento','pendente'].map(k=>{
+      const grp=GESTAO_RESUMO_GRUPOS[k];
+      const c=dr.filter(r=>gestao_progResumoGrupo(r.status)===k).length;
+      const p=t?Math.round(c/t*100):0;
+      return `<div class="g-resumo-row"><span class="g-resumo-row-dot" style="background:${grp.color}"></span><span class="g-resumo-row-label">${grp.label}</span><span class="g-resumo-row-count">${c}</span><span class="g-resumo-row-pct">${p}%</span></div>`;
+    }).join('');
+    return `<div class="g-resumo-block"><div class="g-resumo-block-title" style="color:${cor}">👤 ${nome} · ${t} itens</div>${rows}</div>`;
+  }
+  el.innerHTML=`
+    <div class="g-resumo-cards">${cards}</div>
+    <div class="g-resumo-bar">${barSegs}</div>
+    <div class="g-resumo-block">
+      <div class="g-resumo-block-title">Detalhamento por Status</div>
+      ${statusRows}
+    </div>
+    <div class="g-resumo-buyers">
+      ${buyerBlock('Aline','ALINE','var(--g-accent3)')}
+      ${buyerBlock('Marcos','MARCOS','var(--g-accent)')}
+    </div>`;
 }
 function gestao_rebuildProgFilters(){gestao_populateSelect('gestao-prog-obra',[...new Set(gestaoDB.programacao.map(r=>r.obra).filter(Boolean))].sort(),'Todas as Obras');gestao_populateSelect('gestao-prog-familia',[...new Set(gestaoDB.programacao.map(r=>r.familia).filter(f=>f&&f!=='—'))].sort(),'Todas as Famílias');gestao_populateCotNumFilter();}
 function gestao_calcDias(r){
