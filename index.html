@@ -188,14 +188,14 @@ window.dispatchEvent(new Event('firebase-ready'));
 
 :root {
   /* Paleta do HUB (sidebar + PIN) */
-  --hub-bg:        #0a0a0a;
-  --hub-surface:   #161616;
-  --hub-border:    #2b2b2b;
-  --hub-text:      #f2f2f2;
-  --hub-muted:     #8a8a8a;
+  --hub-bg:        #f4f1ec;
+  --hub-surface:   #ffffff;
+  --hub-border:    #ddd6cc;
+  --hub-text:      #1c1a18;
+  --hub-muted:     #6f685f;
   --hub-accent:    #7a1930;   /* vermelho — identidade UNIQUE */
   --hub-accent2:   #16a34a;   /* verde — reservado para status (bom) */
-  --hub-accent3:   #f2f2f2;   /* branco — destaque neutro */
+  --hub-accent3:   #1c1a18;   /* destaque neutro (texto escuro sobre fundo claro) */
   --hub-danger:    #7a1930;
 
   /* Sidebar */
@@ -263,7 +263,7 @@ html, body {
 }
 
 .hub-login-nome {
-  background: #050505;
+  background: #ffffff;
   border: 2px solid var(--hub-border);
   color: var(--hub-text);
   border-radius: 8px;
@@ -277,7 +277,7 @@ html, body {
 .hub-login-nome:focus { border-color: var(--hub-accent); }
 
 .hub-pin-input {
-  background: #050505;
+  background: #ffffff;
   border: 2px solid var(--hub-border);
   color: var(--hub-text);
   border-radius: 8px;
@@ -430,14 +430,14 @@ html, body {
   position: relative;
 }
 .sb-item:hover {
-  background: rgba(255,255,255,.05);
+  background: rgba(0,0,0,.045);
   color: var(--hub-text);
 }
 .sb-item-external {
   text-decoration: none;
 }
 .sb-item.active {
-  background: rgba(255,255,255,.07);
+  background: rgba(0,0,0,.065);
   color: var(--hub-text);
 }
 
@@ -566,7 +566,7 @@ html, body {
   flex-direction: column;
   align-items: stretch;
   gap: .55rem;
-  background: #050505;
+  background: #faf7f2;
   border: 1px solid var(--hub-border);
   border-radius: 8px;
   padding: .6rem .75rem;
@@ -599,7 +599,7 @@ html, body {
   font-size: .6rem; color: var(--hub-muted); text-transform: uppercase; letter-spacing: .03em;
 }
 .hub-users-mod-select {
-  background: #0a0a0a;
+  background: #ffffff;
   border: 1px solid var(--hub-border);
   color: var(--hub-text);
   border-radius: 6px;
@@ -687,7 +687,7 @@ html, body {
   border-left-width: 3px;
 }
 .hub-welcome-card:hover {
-  background: rgba(255,255,255,.04);
+  background: rgba(0,0,0,.03);
 }
 .hub-welcome-card[data-module="gestao"]  { border-left-color: var(--mod-gestao); }
 .hub-welcome-card[data-module="compra"]  { border-left-color: var(--mod-compra); }
@@ -743,10 +743,10 @@ html, body {
    Variáveis próprias (tema claro) dentro do escopo #hub-module-gestao
    ════════════════════════════════════════════════════════════ */
 #hub-module-gestao {
-  --g-bg:#0a0a0a;--g-surface:#161616;--g-surface2:#1f1f1f;
-  --g-border:#2b2b2b;--g-accent:#7a1930;--g-accent2:#16a34a;
-  --g-accent3:#eaeaea;--g-accent4:#7a1930;
-  --g-text:#f5f5f5;--g-muted:#8a8a8a;
+  --g-bg:#f4f1ec;--g-surface:#ffffff;--g-surface2:#faf7f2;
+  --g-border:#ddd6cc;--g-accent:#7a1930;--g-accent2:#16a34a;
+  --g-accent3:#1c1a18;--g-accent4:#7a1930;
+  --g-text:#1c1a18;--g-muted:#6f685f;
   /* Aliases sem prefixo — usados em vários estilos inline gerados via JS */
   --accent:var(--g-accent);--accent2:var(--g-accent2);
   --accent3:var(--g-accent3);--accent4:var(--g-accent4);
@@ -801,7 +801,7 @@ html, body {
 #gestao-modal .g-dz-name{font-size:.65rem;color:var(--g-accent2);margin-top:6px;font-family:'DM Mono',monospace;word-break:break-all;}
 #gestao-modal .g-modal-actions{display:flex;gap:.75rem;justify-content:flex-end;}
 #gestao-modal .g-btn-cancel{background:none;border:1px solid var(--g-border);color:var(--g-muted);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:600;padding:8px 18px;border-radius:6px;cursor:pointer;}
-#gestao-modal .g-btn-import{background:var(--g-accent);color:#000;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:800;padding:8px 22px;border-radius:6px;cursor:pointer;border:none;opacity:.4;pointer-events:none;transition:all .2s;}
+#gestao-modal .g-btn-import{background:var(--g-accent);color:#fff;font-family:'Syne',sans-serif;font-size:.78rem;font-weight:800;padding:8px 22px;border-radius:6px;cursor:pointer;border:none;opacity:.4;pointer-events:none;transition:all .2s;}
 #gestao-modal .g-btn-import.ready{opacity:1;pointer-events:all;}
 #gestao-modal .g-import-log{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--g-muted);background:var(--g-surface2);border-radius:6px;padding:.7rem 1rem;min-height:48px;white-space:pre-wrap;display:none;line-height:1.7;}
 
@@ -851,7 +851,7 @@ html, body {
 #hub-module-gestao .g-buyer-count{font-family:'DM Mono',monospace;font-size:.67rem;color:var(--g-muted);}
 #hub-module-gestao .g-buyer-fams{display:flex;flex-wrap:wrap;gap:.3rem;}
 #hub-module-gestao .g-fam-tag{font-size:.58rem;font-family:'DM Mono',monospace;border-radius:4px;padding:2px 7px;cursor:pointer;transition:all .15s;border:1px solid;}
-#hub-module-gestao .g-fam-tag.aline{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);color:var(--g-accent3);}
+#hub-module-gestao .g-fam-tag.aline{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.2);color:var(--g-accent3);}
 #hub-module-gestao .g-fam-tag.marcos{background:rgba(122,25,48,.2);border-color:rgba(122,25,48,.4);color:var(--g-accent);}
 #hub-module-gestao .g-fam-tag:hover{opacity:.65;}
 
@@ -873,7 +873,7 @@ html, body {
 #hub-module-gestao .g-resumo-bar-seg{height:100%;transition:width .3s;}
 #hub-module-gestao .g-resumo-block{background:var(--g-surface);border:1px solid var(--g-border);border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:1.2rem;}
 #hub-module-gestao .g-resumo-block-title{font-size:.72rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--g-accent3);margin-bottom:.9rem;}
-#hub-module-gestao .g-resumo-row{display:flex;align-items:center;gap:.7rem;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.76rem;}
+#hub-module-gestao .g-resumo-row{display:flex;align-items:center;gap:.7rem;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:.76rem;}
 #hub-module-gestao .g-resumo-row:last-child{border-bottom:none;}
 #hub-module-gestao .g-resumo-row-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 #hub-module-gestao .g-resumo-row-label{flex:1;color:var(--g-text);}
@@ -883,7 +883,7 @@ html, body {
 @media (max-width:900px){#hub-module-gestao .g-resumo-cards{grid-template-columns:1fr;}#hub-module-gestao .g-resumo-buyers{grid-template-columns:1fr;}}
 
 /* banners */
-#hub-module-gestao .g-prog-banner{background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.22);border-radius:8px;padding:.85rem 1.1rem;margin-bottom:1rem;font-size:.77rem;color:var(--g-accent3);line-height:1.6;}
+#hub-module-gestao .g-prog-banner{background:rgba(0,0,0,.035);border:1px solid rgba(0,0,0,.12);border-radius:8px;padding:.85rem 1.1rem;margin-bottom:1rem;font-size:.77rem;color:var(--g-accent3);line-height:1.6;}
 #hub-module-gestao .g-readonly-banner{background:rgba(248,113,113,.16);border:1px solid rgba(248,113,113,.32);border-radius:8px;padding:.75rem 1.1rem;margin-bottom:1rem;font-size:.76rem;color:var(--g-accent4);display:none;}
 
 /* save strip */
@@ -892,7 +892,7 @@ html, body {
 #hub-module-gestao .g-save-strip span{font-size:.76rem;color:var(--g-accent);}
 #hub-module-gestao .g-save-strip-btns{display:flex;gap:.5rem;}
 #hub-module-gestao .g-sbtn{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:800;padding:6px 15px;border-radius:6px;cursor:pointer;border:none;}
-#hub-module-gestao .g-sbtn-save{background:var(--g-accent);color:#000;}
+#hub-module-gestao .g-sbtn-save{background:var(--g-accent);color:#fff;}
 #hub-module-gestao .g-sbtn-export{background:rgba(122,25,48,.24);color:var(--g-accent);border:1px solid rgba(122,25,48,.5)!important;}
 
 /* empty import */
@@ -922,13 +922,13 @@ html, body {
 #hub-module-gestao .g-tipo-btn:hover{opacity:.8;}
 #hub-module-gestao .g-tipo-btn.active{opacity:1;}
 #hub-module-gestao .g-tipo-btn.ARMAZEM{background:rgba(122,25,48,.3);border-color:rgba(122,25,48,.6);color:#fff;}
-#hub-module-gestao .g-tipo-btn.FABRICA{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3);color:#fff;}
-#hub-module-gestao .g-tipo-btn.LOJA{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.42);color:#fff;}
-#hub-module-gestao .g-tipo-btn.OUTRO{background:rgba(255,255,255,.32);border-color:rgba(255,255,255,.55);color:#fff;}
+#hub-module-gestao .g-tipo-btn.FABRICA{background:rgba(0,0,0,.055);border-color:rgba(0,0,0,.2);color:var(--g-text);}
+#hub-module-gestao .g-tipo-btn.LOJA{background:rgba(0,0,0,.11);border-color:rgba(0,0,0,.3);color:var(--g-text);}
+#hub-module-gestao .g-tipo-btn.OUTRO{background:rgba(0,0,0,.18);border-color:rgba(0,0,0,.4);color:var(--g-text);}
 #hub-module-gestao .g-tipo-btn.active.ARMAZEM{background:rgba(122,25,48,.5);}
-#hub-module-gestao .g-tipo-btn.active.FABRICA{background:rgba(255,255,255,.2);}
-#hub-module-gestao .g-tipo-btn.active.LOJA{background:rgba(255,255,255,.32);}
-#hub-module-gestao .g-tipo-btn.active.OUTRO{background:rgba(255,255,255,.44);}
+#hub-module-gestao .g-tipo-btn.active.FABRICA{background:rgba(0,0,0,.11);}
+#hub-module-gestao .g-tipo-btn.active.LOJA{background:rgba(0,0,0,.2);}
+#hub-module-gestao .g-tipo-btn.active.OUTRO{background:rgba(0,0,0,.3);}
 
 /* pills */
 #hub-module-gestao .g-pill{display:inline-block;font-size:.59rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap;}
@@ -949,7 +949,7 @@ html, body {
 #hub-module-gestao .g-page-btns{display:flex;gap:4px;}
 #hub-module-gestao .g-page-btn{background:var(--g-surface2);border:1px solid var(--g-border);color:var(--g-text);border-radius:5px;padding:4px 10px;font-family:'Syne',sans-serif;font-size:.7rem;cursor:pointer;transition:all .15s;}
 #hub-module-gestao .g-page-btn:hover{border-color:var(--g-accent);color:var(--g-accent);}
-#hub-module-gestao .g-page-btn.active{background:var(--g-accent);color:#000;border-color:var(--g-accent);font-weight:700;}
+#hub-module-gestao .g-page-btn.active{background:var(--g-accent);color:#fff;border-color:var(--g-accent);font-weight:700;}
 #hub-module-gestao .g-page-btn:disabled{opacity:.3;cursor:not-allowed;}
 #hub-module-gestao .g-empty-state{padding:2.5rem;text-align:center;color:var(--g-muted);font-size:.8rem;}
 </style>
@@ -1060,6 +1060,8 @@ html, body {
         <span class="sb-text">Compras Racionalizadas</span>
       </button>
 
+      <div class="sb-label">Externo</div>
+
       <!-- Controle de Estoque -->
       <button class="sb-item" data-module="estoque" onclick="hubNavigate('estoque')">
         <span class="sb-icon">
@@ -1067,8 +1069,6 @@ html, body {
         </span>
         <span class="sb-text">Controle de Estoque</span>
       </button>
-
-      <div class="sb-label">Externo</div>
 
       <!-- Cotação Unique (site externo) -->
       <a class="sb-item sb-item-external" href="https://cotacao-unique.web.app/" target="_blank" rel="noopener">
@@ -1268,7 +1268,7 @@ html, body {
   <button class="g-tab-btn active" onclick="gestao_showTab('bdados',this)">📦 Base de Dados</button>
   <button class="g-tab-btn" onclick="gestao_showTab('solicitacoes',this)">📋 Solicitações</button>
   <button class="g-tab-btn" onclick="gestao_showTab('programacao',this)">🗓 Programação</button>
-  <button class="g-tab-btn" onclick="gestao_showTab('cotacoes',this)">📊 Cotações <span id="gestao-cot-badge" style="font-size:.55rem;background:rgba(255,255,255,.22);color:var(--accent3);border-radius:4px;padding:1px 5px;margin-left:4px;display:none"></span></button>
+  <button class="g-tab-btn" onclick="gestao_showTab('cotacoes',this)">📊 Cotações <span id="gestao-cot-badge" style="font-size:.55rem;background:rgba(0,0,0,.14);color:var(--accent3);border-radius:4px;padding:1px 5px;margin-left:4px;display:none"></span></button>
   <button class="g-tab-btn" onclick="gestao_showTab('fornecedores',this)">🏭 Fornecedores <span id="gestao-forn-badge" style="font-size:.55rem;background:rgba(248,113,113,.32);color:var(--accent4);border-radius:4px;padding:1px 5px;margin-left:4px;display:none">Classificar</span></button>
 </nav>
 
@@ -1399,7 +1399,7 @@ html, body {
       <input type="text" id="gestao-cot-filter-sol" placeholder="Nº Solicitação" oninput="gestao_filterCOT()" style="width:130px;padding:6px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:.78rem">
       <select id="gestao-cot-comprador" onchange="gestao_filterCOT()"><option value="">Todos Compradores</option><option value="ALINE">Aline</option><option value="MARCOS">Marcos</option></select>
       <div style="display:flex;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:3px">
-        <button id="gestao-toggle-forn-btn" onclick="gestao_setCotView('fornecedor')" style="font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:4px;border:none;cursor:pointer;background:var(--accent);color:#000">🏭 Por Fornecedor</button>
+        <button id="gestao-toggle-forn-btn" onclick="gestao_setCotView('fornecedor')" style="font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:4px;border:none;cursor:pointer;background:var(--accent);color:#fff">🏭 Por Fornecedor</button>
         <button id="gestao-toggle-ins-btn" onclick="gestao_setCotView('insumo')" style="font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:4px;border:none;cursor:pointer;background:transparent;color:var(--muted)">📦 Por Insumo</button>
         <button id="gestao-toggle-agr-btn" onclick="gestao_setCotView('agrupamento')" style="font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:4px;border:none;cursor:pointer;background:transparent;color:var(--muted)">🗂 Agrupamento</button>
       </div>
@@ -2514,7 +2514,7 @@ function gestao_renderCOT_insumo(filtered_insumos){
   filtered_insumos.forEach(item => {
     const compColor = item.comprador==='ALINE'?'var(--accent3)':'var(--accent)';
     const tagColor = item.isFallback
-      ? 'background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.28);color:var(--accent3)'
+      ? 'background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.2);color:var(--accent3)'
       : 'background:var(--surface2);border:1px solid var(--border)';
     const fornHtml = item.fornecedores.length
       ? (item.isFallback ? '<span style="font-size:.6rem;color:var(--accent3);margin-right:4px">📂 por família:</span>' : '')
@@ -2568,7 +2568,7 @@ function gestao_renderCOT_agrupamento(groups){
   let html = '';
   groups.forEach((g, gi) => {
     const tagStyle = g.isFallback
-      ? 'background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.28);color:var(--accent3)'
+      ? 'background:rgba(0,0,0,.06);border:1px solid rgba(0,0,0,.2);color:var(--accent3)'
       : 'background:var(--surface2);border:1px solid var(--border);color:var(--fg)';
     const fornHtml = g.forns.length
       ? (g.isFallback ? '<span style="font-size:.6rem;color:var(--accent3);margin-right:4px">📂 por família:</span>' : '')
@@ -2684,7 +2684,7 @@ function gestao_renderCOT(){
         ? 'R$ '+ins.estimativa.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})
         : '—';
       const avgStr = ins.avgP>0 ? 'R$ '+ins.avgP.toFixed(2) : '—';
-      insumoRows += '<tr style="background:rgba(255,255,255,.02)">'
+      insumoRows += '<tr style="background:rgba(0,0,0,.02)">'
         + '<td style="opacity:.5;font-size:.65rem;padding:5px 12px">'+(i+1)+'</td>'
         + '<td style="font-size:.65rem;padding:5px 12px;color:var(--accent3);font-weight:700">#'+ins.solicitacao+'</td>'
         + '<td style="font-size:.72rem;padding:5px 12px" title="'+ins.insumo+'">'+ins.insumo+'</td>'
@@ -2898,15 +2898,15 @@ function gestao_renderFORN(){
 <style>
 #hub-module-compra *{ box-sizing: border-box; margin: 0; padding: 0; }
 #hub-module-compra{
-  --bg: #0a0a0a;
-  --surface: #161616;
-  --surface2: #1f1f1f;
-  --surface3: #292929;
-  --border: rgba(255,255,255,0.07);
-  --border-strong: rgba(255,255,255,0.12);
-  --text: #f5f5f5;
-  --text2: #a8a8a8;
-  --text3: #7a7a7a;
+  --bg: #f4f1ec;
+  --surface: #ffffff;
+  --surface2: #faf7f2;
+  --surface3: #f2ede6;
+  --border: rgba(0,0,0,0.09);
+  --border-strong: rgba(0,0,0,0.16);
+  --text: #1c1a18;
+  --text2: #6f685f;
+  --text3: #948c81;
   --accent-deep: #7a1930;
   --accent: #7a1930;
   --accent-bg: rgba(122,25,48,0.13);
@@ -3678,16 +3678,16 @@ async function compra_carregarTiposFornecedor(){
 
 // Cores idênticas às usadas nos botões ARMAZÉM/FÁBRICA/OUTRO da Gestão de Insumos
 const COMPRA_TIPO_STYLE = {
-  ARMAZEM: { letra:'A', bg:'rgba(122,25,48,.3)',   bd:'rgba(122,25,48,.6)' },
-  FABRICA: { letra:'F', bg:'rgba(255,255,255,.1)', bd:'rgba(255,255,255,.3)' },
-  OUTRO:   { letra:'O', bg:'rgba(255,255,255,.32)', bd:'rgba(255,255,255,.55)' }
+  ARMAZEM: { letra:'A', bg:'rgba(122,25,48,.3)', bd:'rgba(122,25,48,.6)', fg:'#fff' },
+  FABRICA: { letra:'F', bg:'rgba(0,0,0,.055)',   bd:'rgba(0,0,0,.2)',    fg:'var(--text)' },
+  OUTRO:   { letra:'O', bg:'rgba(0,0,0,.18)',    bd:'rgba(0,0,0,.4)',    fg:'var(--text)' }
 };
 function compra_tipoBadge(fornecedor){
   if(!fornecedor) return '';
   const tipo = compra_fornTipos[fornecedor] || compra_fornTiposBare[fornecedor];
   const s = COMPRA_TIPO_STYLE[tipo];
   if(!s) return '';
-  return `<span class="forn-tipo-badge" style="background:${s.bg};border-color:${s.bd};" title="${tipo}">${s.letra}</span>`;
+  return `<span class="forn-tipo-badge" style="background:${s.bg};border-color:${s.bd};color:${s.fg};" title="${tipo}">${s.letra}</span>`;
 }
 
 // Escuta a navegação do HUB: só inicializa quando o usuário entra no módulo Última Compra
@@ -3706,13 +3706,13 @@ window.addEventListener('hub-ready', () => {
 <style>
 #hub-module-pedidos *, #hub-module-pedidos *::before, #hub-module-pedidos *::after{box-sizing:border-box;margin:0;padding:0}
 #hub-module-pedidos {
-    --bg:#0a0a0a;
-    --surface:#161616;
-    --border:rgba(255,255,255,0.12);
-    --border-soft:rgba(255,255,255,0.07);
-    --text:#f5f5f5;
-    --muted:#9a9a9a;
-    --dim:#6b6b6b;
+    --bg:#f4f1ec;
+    --surface:#ffffff;
+    --border:rgba(0,0,0,0.14);
+    --border-soft:rgba(0,0,0,0.08);
+    --text:#1c1a18;
+    --muted:#6f685f;
+    --dim:#948c81;
     --red:#dc2626;
     --red-bg:rgba(220,38,38,0.12);
     --red-border:rgba(220,38,38,0.3);
@@ -3730,7 +3730,7 @@ window.addEventListener('hub-ready', () => {
 /* HEADER */
 #hub-module-pedidos header {background:var(--surface);border-bottom:1px solid var(--border);padding:18px 40px;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px;}
 #hub-module-pedidos .logo {display:flex;align-items:center;gap:12px;}
-#hub-module-pedidos .logo-mark {width:36px;height:36px;background:#1a1a1a;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+#hub-module-pedidos .logo-mark {width:36px;height:36px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
 #hub-module-pedidos .logo-mark svg {width:18px;height:18px;fill:#fff;}
 #hub-module-pedidos .logo-title {font-family:'Syne',sans-serif;font-size:14px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--blue);}
 #hub-module-pedidos .logo-sub {font-size:11px;font-weight:300;color:var(--muted);font-family:'DM Mono',monospace;}
@@ -3777,7 +3777,7 @@ window.addEventListener('hub-ready', () => {
 #hub-module-pedidos .filter-btn.active-red {background:var(--red-bg);border-color:var(--red-border);color:var(--red);}
 #hub-module-pedidos .filter-btn.active-green {background:var(--green-bg);border-color:var(--green-border);color:var(--green);}
 #hub-module-pedidos .filter-btn.active-amber {background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber);}
-#hub-module-pedidos .filter-btn.active-all {background:#1a1a1a;border-color:#1a1a1a;color:#fff;}
+#hub-module-pedidos .filter-btn.active-all {background:var(--text);border-color:var(--text);color:#fff;}
 #hub-module-pedidos .search-box {font-family:'DM Mono',monospace;font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);outline:none;width:220px;}
 #hub-module-pedidos .search-box:focus {border-color:var(--blue);}
 #hub-module-pedidos .btn-export {font-family:'Syne',sans-serif;font-size:12px;font-weight:500;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--muted);transition:all .15s;display:flex;align-items:center;gap:5px;}
@@ -4252,9 +4252,9 @@ window.addEventListener('hub-ready', () => {
     <section id="hub-module-cronograma" class="hub-module">
 <style>
 #hub-module-cronograma {
-  --bg:#0a0a0a;--paper:#161616;--ink:#f5f5f5;--ink-soft:#a8a8a8;--ink-faint:#7a7a7a;
-  --line:#2b2b2b;--line-soft:#1f1f1f;--accent:#7a1930;--accent-ink:#e07d90;
-  --accent-bg:#2b1219;--done:#4FCBA6;--done-bg:#123A30;--radius:10px;
+  --bg:#f4f1ec;--paper:#ffffff;--ink:#1c1a18;--ink-soft:#6f685f;--ink-faint:#948c81;
+  --line:#ddd6cc;--line-soft:#ece7e0;--accent:#7a1930;--accent-ink:#7a1930;
+  --accent-bg:#f8e6ea;--done:#4FCBA6;--done-bg:#e3f8ea;--done-ink:#166534;--radius:10px;
   --font-display:'Syne',sans-serif;--font-body:'Syne',sans-serif;
   --font-mono:'DM Mono',monospace;
 }
@@ -4292,7 +4292,7 @@ window.addEventListener('hub-ready', () => {
 #hub-module-cronograma .task:last-child{border-bottom:none;}
 #hub-module-cronograma .task-check{width:17px;height:17px;border:1.5px solid var(--line);border-radius:50%;background:transparent;flex:0 0 auto;cursor:pointer;margin-top:2px;position:relative;}
 #hub-module-cronograma .task-check.checked{background:var(--done);border-color:var(--done);}
-#hub-module-cronograma .task-check.checked::after{content:'';position:absolute;left:4px;top:1px;width:5px;height:8px;border:solid var(--paper);border-width:0 2px 2px 0;transform:rotate(45deg);}
+#hub-module-cronograma .task-check.checked::after{content:'';position:absolute;left:4px;top:1px;width:5px;height:8px;border:solid var(--ink);border-width:0 2px 2px 0;transform:rotate(45deg);}
 #hub-module-cronograma .task-body{flex:1;min-width:0;}
 #hub-module-cronograma .task-title{font-size:14px;line-height:1.4;color:var(--ink);}
 #hub-module-cronograma .task.done .task-title{color:var(--ink-faint);text-decoration:line-through;}
@@ -4345,10 +4345,10 @@ window.addEventListener('hub-ready', () => {
 #hub-module-cronograma .badge{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;display:inline-block;}
 #hub-module-cronograma .badge-priority{background:var(--accent);color:#fff;}
 #hub-module-cronograma .badge-late{background:#FEE2E2;color:#991B1B;}
-#hub-module-cronograma .badge-done{background:var(--done-bg);color:var(--done);}
+#hub-module-cronograma .badge-done{background:var(--done-bg);color:var(--done-ink);}
 #hub-module-cronograma .monthly-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 #hub-module-cronograma .monthly-check{font-size:12px;padding:6px 12px;border-radius:6px;border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;}
-#hub-module-cronograma .monthly-check.done{background:var(--done);color:var(--paper);border-color:var(--done);}
+#hub-module-cronograma .monthly-check.done{background:var(--done);color:var(--ink);border-color:var(--done);}
 #hub-module-cronograma .task-recurring-badge{font-size:10px;color:var(--ink-faint);font-family:var(--font-mono);}
 #hub-module-cronograma .task-finalize{font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--accent);color:var(--accent-ink);background:transparent;cursor:pointer;white-space:nowrap;}
 #hub-module-cronograma .task-finalize:hover{background:var(--accent-bg);}
@@ -5316,12 +5316,12 @@ window.addEventListener('hub-ready', () => {
 <style>
 #hub-module-cartoes *{ box-sizing: border-box; }
 #hub-module-cartoes{
-    --bg: #0a0a0a;
-    --panel: #161616;
-    --panel-alt: #1f1f1f;
-    --border: #2b2b2b;
-    --ink: #f5f5f5;
-    --ink-soft: #a8a8a8;
+    --bg: #f4f1ec;
+    --panel: #ffffff;
+    --panel-alt: #faf7f2;
+    --border: #ddd6cc;
+    --ink: #1c1a18;
+    --ink-soft: #6f685f;
     --maroon: #7a1930;
     --maroon-dark: #5c1325;
     --rose: #7a1930;
@@ -5331,7 +5331,7 @@ window.addEventListener('hub-ready', () => {
     --green-soft: rgba(22,163,74,0.16);
     --red: #dc2626;
     --red-soft: rgba(220,38,38,0.16);
-    --shadow: 0 1px 2px rgba(0,0,0,0.5), 0 6px 18px rgba(0,0,0,0.45);
+    --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 6px 18px rgba(0,0,0,0.07);
     margin:0;
     font-family:'Syne',sans-serif;
     color: var(--ink);
@@ -5363,7 +5363,7 @@ window.addEventListener('hub-ready', () => {
     width:30px; height:30px; border-radius:50%; border:none; background:transparent;
     color: var(--ink); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
   }
-#hub-module-cartoes .month-nav button:hover{ background: rgba(255,255,255,0.08); }
+#hub-module-cartoes .month-nav button:hover{ background: rgba(0,0,0,0.06); }
 #hub-module-cartoes .month-nav span{ font-size:14px; min-width: 140px; text-align:center; text-transform:capitalize; font-weight:600; }
 #hub-module-cartoes .summary-strip{
     display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
@@ -5404,7 +5404,7 @@ window.addEventListener('hub-ready', () => {
 #hub-module-cartoes .card-panel-head h3{ margin:0; font-size:16px; font-weight:700; padding-right: 46px; }
 #hub-module-cartoes .card-panel-menu{ display:flex; gap:4px; }
 #hub-module-cartoes .icon-btn{ border:none; background:transparent; cursor:pointer; font-size:14px; padding:4px 6px; border-radius:6px; color: var(--ink-soft); }
-#hub-module-cartoes .icon-btn:hover{ background: rgba(255,255,255,0.08); color: var(--ink); }
+#hub-module-cartoes .icon-btn:hover{ background: rgba(0,0,0,0.06); color: var(--ink); }
 #hub-module-cartoes .card-dates{ font-size:11px; color: var(--ink-soft); margin-top:4px; letter-spacing:0.2px; }
 #hub-module-cartoes .card-stamp{
     position:absolute; top:14px; right:14px;
@@ -5446,7 +5446,7 @@ window.addEventListener('hub-ready', () => {
     position: sticky; top:0;
   }
 #hub-module-cartoes tbody td{ padding: 11px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-#hub-module-cartoes tbody tr:hover{ background: rgba(255,255,255,0.03); }
+#hub-module-cartoes tbody tr:hover{ background: rgba(0,0,0,0.025); }
 #hub-module-cartoes .tag{ display:inline-block; font-size:11px; padding:3px 8px; border-radius:999px; background: var(--panel-alt); color: var(--ink-soft); border: 1px solid var(--border); }
 #hub-module-cartoes .tag-installment{ display:inline-block; font-size:11px; margin-top:4px; padding:2px 7px; border-radius:999px; background: var(--orange-soft); color: var(--orange); }
 #hub-module-cartoes .tag-fatura{ display:inline-block; font-size:11px; margin-top:3px; color: var(--ink-soft); }
@@ -6188,15 +6188,15 @@ window.addEventListener('hub-ready', () => {
 
 <style>
 #hub-module-comprasrac {
-  --bg: #0d0d0f;
-  --surface: #17171a;
-  --surface-2: #1e1e21;
-  --border: #2a2a2e;
-  --border-strong: #3a3a3f;
+  --bg: #f4f1ec;
+  --surface: #ffffff;
+  --surface-2: #faf7f2;
+  --border: #ddd6cc;
+  --border-strong: #c9c0b2;
   --accent: #e2364f;
   --accent-dim: rgba(226, 54, 79, 0.12);
-  --text: #f2f2f2;
-  --text-muted: #8b8b90;
+  --text: #1c1a18;
+  --text-muted: #6f685f;
   --positive: #3ecf8e;
   --positive-dim: rgba(62, 207, 142, 0.12);
   --negative: #ff5468;
@@ -8288,12 +8288,12 @@ document.addEventListener("change", handleChange);
     <section id="hub-module-estoque" class="hub-module">
 <style>
 #hub-module-estoque{
-  --bg:#0d0d0f;
-    --bg-elev:#151517;
-    --bg-card:#1b1b1e;
-    --bg-input:#141416;
-    --border:#2a2a2e;
-    --border-light:#333338;
+  --bg:#f4f1ec;
+    --bg-elev:#faf7f2;
+    --bg-card:#ffffff;
+    --bg-input:#ffffff;
+    --border:#ddd6cc;
+    --border-light:#e8e2d8;
     --red:#e5285a;
     --red-dim:rgba(229,40,90,0.14);
     --red-dim-strong:rgba(229,40,90,0.28);
@@ -8301,9 +8301,9 @@ document.addEventListener("change", handleChange);
     --orange-dim:rgba(242,134,29,0.14);
     --green:#33d17a;
     --green-dim:rgba(51,209,122,0.14);
-    --text:#f2f2f3;
-    --text-muted:#9a9aa2;
-    --text-faint:#6b6b72;
+    --text:#1c1a18;
+    --text-muted:#6f685f;
+    --text-faint:#948c81;
     --radius:12px;
     --radius-sm:8px;
   margin:0;
@@ -8398,7 +8398,7 @@ document.addEventListener("change", handleChange);
 
 
   #hub-module-estoque .field label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-faint);margin-bottom:6px;font-weight:600;}
-  #hub-module-estoque input[type=text], #hub-module-estoque input[type=number], #hub-module-estoque input[type=date], #hub-module-estoque select, #hub-module-estoque textarea{
+  #hub-module-estoque input[type=text], #hub-module-estoque input[type=number], #hub-module-estoque input[type=date], #hub-module-estoque input[type=password], #hub-module-estoque select, #hub-module-estoque textarea{
     width:100%;background:var(--bg-input);border:1px solid var(--border);
     color:var(--text);border-radius:var(--radius-sm);padding:10px 12px;
     font-family:inherit;font-size:13px;outline:none;transition:border-color .15s;
@@ -8472,9 +8472,10 @@ document.addEventListener("change", handleChange);
   #hub-module-estoque .toast{
     background:var(--bg-elev);border:1px solid var(--border-light);border-left:3px solid var(--green);
     color:var(--text);padding:12px 16px;border-radius:var(--radius-sm);font-size:13px;
-    max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.4);
+    max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.08);
   }
   #hub-module-estoque .toast.error{border-left-color:var(--red);}
+  #hub-module-estoque .toast.warning{border-left-color:var(--orange);}
 
   /* ---------- MODAL ---------- */
   #hub-module-estoque .modal-overlay{
@@ -8496,8 +8497,50 @@ document.addEventListener("change", handleChange);
   #hub-module-estoque .stack{display:flex;flex-direction:column;gap:6px;}
   #hub-module-estoque .hidden{display:none !important;}
   #hub-module-estoque a{color:var(--red);}
+  #hub-module-estoque .checkbox-row{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);}
+  #hub-module-estoque .checkbox-row input{width:auto;}
+  #hub-module-estoque .ranking-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:10px;}
+  #hub-module-estoque .ranking-card .nome-destinatario{font-weight:700;margin-bottom:8px;}
+  #hub-module-estoque .ranking-item-linha{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;}
+
+  /* ---------- LOGIN ---------- */
+  #hub-module-estoque #estoque-login-screen{
+    position:fixed;inset:0;background:var(--bg);display:flex;
+    align-items:center;justify-content:center;z-index:200;padding:20px;
+  }
+  #hub-module-estoque .login-box{
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+    padding:32px;max-width:360px;width:100%;
+  }
+  #hub-module-estoque .login-box .topbar-icon{margin:0 auto 16px;}
+  #hub-module-estoque .login-box h1{text-align:center;font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--red);margin:0 0 4px;}
+  #hub-module-estoque .login-box .login-sub{text-align:center;color:var(--text-faint);font-size:12px;margin-bottom:22px;}
+  #hub-module-estoque #estoque-login-erro{color:var(--red);font-size:12px;min-height:16px;margin-top:8px;}
+
+  /* ---------- SESSÃO ---------- */
+  #hub-module-estoque .sessao-info{font-size:11px;color:var(--text-faint);display:flex;align-items:center;gap:10px;}
+  #hub-module-estoque .link-sair{color:var(--text-muted);cursor:pointer;text-decoration:underline;}
+  #hub-module-estoque .link-sair:hover{color:var(--red);}
 </style>
-<div class="app">
+<div id="estoque-login-screen">
+  <div class="login-box">
+    <div class="topbar-icon" style="width:44px;height:44px;font-size:22px;margin:0 auto 16px;">▣</div>
+    <h1>Controle de Estoque</h1>
+    <div class="login-sub">Obra · Suprimentos</div>
+    <div class="field">
+      <label for="estoque-login-usuario">Usuário</label>
+      <input type="text" id="estoque-login-usuario" autocomplete="username" onkeydown="if(event.key==='Enter') estoque_fazerLogin()">
+    </div>
+    <div class="field" style="margin-top:12px;">
+      <label for="estoque-login-senha">Senha</label>
+      <input type="password" id="estoque-login-senha" autocomplete="current-password" onkeydown="if(event.key==='Enter') estoque_fazerLogin()">
+    </div>
+    <div id="estoque-login-erro"></div>
+    <button class="btn btn-primary btn-block" style="margin-top:10px;" onclick="estoque_fazerLogin()">Entrar</button>
+  </div>
+</div>
+
+<div id="estoque-app" class="app hidden">
 
   <div class="topbar">
     <div>
@@ -8509,7 +8552,10 @@ document.addEventListener("change", handleChange);
         </div>
       </div>
     </div>
-    <div id="estoque-config-pill" class="config-pill" onclick="estoque_abrirConfigModal()">Verificando conexão…</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div id="estoque-sessao-info" class="sessao-info"></div>
+      <div id="estoque-config-pill" class="config-pill" onclick="estoque_abrirConfigModal()">Verificando conexão…</div>
+    </div>
   </div>
 
   <div class="obra-bar">
@@ -8675,6 +8721,10 @@ document.addEventListener("change", handleChange);
           <p class="card-title" style="margin:0;">Estoque atual por insumo</p>
           <input type="text" id="estoque-filtro-estoque" placeholder="Buscar por código ou nome…" style="max-width:260px;" oninput="estoque_renderEstoqueAtual()">
         </div>
+        <label class="checkbox-row" style="margin-bottom:12px;">
+          <input type="checkbox" id="estoque-chk-mostrar-todos-estoque" onchange="estoque_renderEstoqueAtual()">
+          Mostrar também insumos sem estoque (quantidade zero)
+        </label>
         <div style="overflow-x:auto;">
           <table>
             <thead><tr><th>Código</th><th>Insumo</th><th>Unid.</th><th class="num">Estoque</th><th class="num">Em uso</th><th></th></tr></thead>
@@ -8706,13 +8756,11 @@ document.addEventListener("change", handleChange);
     <!-- RANKING -->
     <div id="estoque-dash-ranking" class="est-dash-pane">
       <div class="card">
-        <p class="card-title">Quem mais requisitou material (no período filtrado no histórico)</p>
-        <div style="overflow-x:auto;">
-          <table>
-            <thead><tr><th>Destinatário</th><th class="num">Total retirado</th></tr></thead>
-            <tbody id="estoque-tbody-ranking"></tbody>
-          </table>
+        <div class="flex-between" style="margin-bottom:10px;">
+          <p class="card-title" style="margin:0;">Quem mais requisitou material (no período filtrado no histórico)</p>
+          <input type="text" id="estoque-filtro-ranking" placeholder="Buscar por destinatário…" style="max-width:260px;" oninput="estoque_renderRanking()">
         </div>
+        <div id="estoque-lista-ranking"></div>
       </div>
     </div>
 
@@ -8830,6 +8878,7 @@ const estoque_state = {
   cadastro: [],            // lista completa de insumos (cache)
   obras: [],               // todas as obras (ativas e encerradas)
   obraAtual: null,         // {Codigo, Nome, Status} selecionada nas pílulas
+  sessao: null,            // {usuario, tipoAcesso, obraCodigo, obraNome}
   dashboard: { estoqueAtual: [], movimentacoes: [], ranking: [] }
 };
 
@@ -8853,9 +8902,10 @@ function estoque_formatData(valor){
   if (isNaN(d)) return String(valor);
   return d.toLocaleDateString('pt-BR');
 }
-function estoque_toast(msg, isError){
+function estoque_toast(msg, type){
   const el = document.createElement('div');
-  el.className = 'toast' + (isError ? ' error' : '');
+  const cls = (type === true || type === 'error') ? ' error' : (type === 'warning' ? ' warning' : '');
+  el.className = 'toast' + cls;
   el.textContent = msg;
   document.getElementById('estoque-toast-container').appendChild(el);
   setTimeout(() => el.remove(), 5000);
@@ -8883,7 +8933,7 @@ async function estoque_apiPost(action, body){
   const res = await fetch(estoqueG_API_URL, {
     method: 'POST',
     headers: {'Content-Type': 'text/plain;charset=utf-8'},
-    body: JSON.stringify({ action, ...body })
+    body: JSON.stringify({ action, usuario: estoque_state.sessao ? estoque_state.sessao.usuario : '', ...body })
   });
   const data = await res.json();
   if (data.erro) throw new Error(data.erro);
@@ -8922,6 +8972,68 @@ async function estoque_atualizarPillConexao(){
 }
 
 /* =======================================================================
+   LOGIN / SESSÃO
+   Sessão própria do módulo Estoque — independente do PIN do HUB. O
+   backend (Apps Script) identifica quem faz cada ação pelo campo
+   "usuario" enviado no corpo da requisição (aba Usuarios da planilha).
+   IMPORTANTE: a sessão NÃO é persistida em localStorage — cada vez que a
+   página do HUB é carregada, o módulo Estoque sempre pede login de novo,
+   independente de qual perfil/PIN foi usado para entrar no HUB. Isso evita
+   que, num computador compartilhado, uma pessoa herde a sessão (e a obra)
+   de quem usou o Estoque por último.
+   ======================================================================= */
+function estoque_salvarSessao(sessao){
+  estoque_state.sessao = sessao;
+}
+function estoque_sair(){
+  estoque_state.sessao = null;
+  estoque_iniciado = false;
+  document.getElementById('estoque-app').classList.add('hidden');
+  document.getElementById('estoque-login-screen').classList.remove('hidden');
+  document.getElementById('estoque-login-usuario').value = '';
+  document.getElementById('estoque-login-senha').value = '';
+  document.getElementById('estoque-login-erro').textContent = '';
+}
+
+async function estoque_fazerLogin(){
+  const usuario = document.getElementById('estoque-login-usuario').value.trim();
+  const senha = document.getElementById('estoque-login-senha').value;
+  const erroEl = document.getElementById('estoque-login-erro');
+  erroEl.textContent = '';
+  if (!usuario || !senha){ erroEl.textContent = 'Preencha usuário e senha.'; return; }
+  try {
+    const data = await estoque_apiPost('login', { usuario, senha });
+    estoque_salvarSessao({
+      usuario: data.usuario,
+      tipoAcesso: data.tipoAcesso,
+      obraCodigo: data.obraCodigo,
+      obraNome: data.obraNome
+    });
+    estoque_entrarNoApp();
+  } catch (err){
+    erroEl.textContent = err.message;
+  }
+}
+
+/** Mostra o app e finaliza a inicialização — chamado após login bem-sucedido ou ao restaurar sessão salva. */
+function estoque_entrarNoApp(){
+  document.getElementById('estoque-login-screen').classList.add('hidden');
+  document.getElementById('estoque-app').classList.remove('hidden');
+
+  const ehMaster = estoque_state.sessao.tipoAcesso === 'Master';
+  const rotulo = ehMaster ? 'Acesso Master' : (estoque_state.sessao.obraNome || ('Obra ' + estoque_state.sessao.obraCodigo));
+  document.getElementById('estoque-sessao-info').innerHTML =
+    `${estoque_state.sessao.usuario} · ${rotulo} <span class="link-sair" onclick="estoque_sair()">Sair</span>`;
+
+  document.getElementById('estoque-entrada-data').value = estoque_hojeISO();
+  document.getElementById('estoque-saida-data').value = estoque_hojeISO();
+  document.getElementById('estoque-emuso-data').value = estoque_hojeISO();
+  estoque_atualizarPillConexao();
+  if (estoque_apiConfigurada()) { estoque_carregarCadastro(); estoque_carregarObras(); }
+  else estoque_abrirConfigModal();
+}
+
+/* =======================================================================
    OBRAS (seletor persistente, criação, encerramento, exclusão)
    ======================================================================= */
 async function estoque_carregarObras(manterSelecaoCodigo){
@@ -8933,10 +9045,16 @@ async function estoque_carregarObras(manterSelecaoCodigo){
     return;
   }
   const ativas = estoque_state.obras.filter(o => o.Status !== 'Encerrada');
+  const ehMaster = estoque_state.sessao && estoque_state.sessao.tipoAcesso === 'Master';
 
-  const alvo = manterSelecaoCodigo || (estoque_state.obraAtual && estoque_state.obraAtual.Codigo);
-  let selecionada = ativas.find(o => String(o.Codigo) === String(alvo));
-  if (!selecionada) selecionada = ativas[0] || null;
+  let selecionada;
+  if (!ehMaster && estoque_state.sessao){
+    // acesso travado na obra do login — ignora tentativas de trocar
+    selecionada = ativas.find(o => String(o.Codigo) === String(estoque_state.sessao.obraCodigo)) || null;
+  } else {
+    const alvo = manterSelecaoCodigo || (estoque_state.obraAtual && estoque_state.obraAtual.Codigo);
+    selecionada = ativas.find(o => String(o.Codigo) === String(alvo)) || ativas[0] || null;
+  }
   estoque_state.obraAtual = selecionada;
 
   estoque_renderObraPills(ativas);
@@ -8947,6 +9065,17 @@ function estoque_renderObraPills(ativas){
   const container = document.getElementById('estoque-obra-pills');
   const banner = document.getElementById('estoque-obra-empty-banner');
   const acoes = document.querySelector('.obra-actions');
+  const ehMaster = estoque_state.sessao && estoque_state.sessao.tipoAcesso === 'Master';
+
+  if (!ehMaster){
+    // Login travado numa obra: não faz sentido mostrar um seletor com outras obras
+    // (nem elas funcionariam, já que o backend nega qualquer ação fora da obra do login).
+    banner.classList.add('hidden');
+    acoes.classList.add('hidden');
+    const nome = estoque_state.obraAtual ? estoque_state.obraAtual.Nome : (estoque_state.sessao ? estoque_state.sessao.obraNome : '');
+    container.innerHTML = nome ? `<span class="obra-pill active" style="cursor:default;">${nome}</span>` : '';
+    return;
+  }
 
   banner.classList.toggle('hidden', ativas.length !== 0);
   acoes.classList.toggle('hidden', !estoque_state.obraAtual);
@@ -8959,6 +9088,8 @@ function estoque_renderObraPills(ativas){
 }
 
 function estoque_selecionarObra(codigo){
+  const ehMaster = estoque_state.sessao && estoque_state.sessao.tipoAcesso === 'Master';
+  if (!ehMaster) return; // login travado numa obra não pode trocar
   const obra = estoque_state.obras.find(o => String(o.Codigo) === String(codigo));
   if (!obra) return;
   estoque_state.obraAtual = obra;
@@ -9193,7 +9324,7 @@ function estoque_renderPedidoInfo(){
   lista.innerHTML = pendentes.map(it => {
     const completo = it.Status === 'Completo';
     return `
-    <div class="item-row" data-codigo="${it.Codigo}">
+    <div class="item-row" data-id="${it.IdItem}" data-codigo="${it.Codigo}">
       <div>
         <div class="nome">${it.Codigo} — ${it.Nome}</div>
         <div class="meta">
@@ -9202,9 +9333,9 @@ function estoque_renderPedidoInfo(){
         </div>
       </div>
       <input type="number" class="input-qtd-recebida" min="0" step="0.01"
-        placeholder="Qtd. recebida agora" ${completo ? 'disabled' : ''}
+        value="${completo ? '' : it.QuantidadePendente}" ${completo ? 'disabled' : ''}
         max="${it.QuantidadePendente}">
-      <button class="btn btn-danger btn-sm" ${completo ? 'disabled' : ''} onclick="estoque_confirmarCancelarItem('${it.Codigo}', '${(it.Nome||'').replace(/'/g,"\\'")}')">Cancelar</button>
+      <button class="btn btn-danger btn-sm" ${completo ? 'disabled' : ''} onclick="estoque_confirmarCancelarItem('${it.IdItem}', '${(it.Nome||'').replace(/'/g,"\\'")}')">Cancelar</button>
     </div>`;
   }).join('');
 }
@@ -9213,12 +9344,13 @@ async function estoque_confirmarEntrada(){
   const linhas = document.querySelectorAll('#estoque-itens-pedido-lista .item-row');
   const itensRecebidos = [];
   linhas.forEach(row => {
+    const idItem = row.dataset.id;
     const codigo = row.dataset.codigo;
     const input = row.querySelector('.input-qtd-recebida');
     const qtd = parseFloat(input.value);
     if (qtd && qtd > 0){
-      const item = estoque_state.itensPedidoAtual.find(it => String(it.Codigo) === String(codigo));
-      itensRecebidos.push({ codigo, nome: item ? item.Nome : '', quantidadeRecebida: qtd });
+      const item = estoque_state.itensPedidoAtual.find(it => String(it.IdItem) === String(idItem));
+      itensRecebidos.push({ idItem, codigo, nome: item ? item.Nome : '', unidade: item ? item.Unidade : '', quantidadeRecebida: qtd });
     }
   });
   if (itensRecebidos.length === 0){ estoque_toast('Informe a quantidade recebida de pelo menos um item.', true); return; }
@@ -9245,13 +9377,13 @@ async function estoque_confirmarEntrada(){
   }
 }
 
-function estoque_confirmarCancelarItem(codigo, nome){
+function estoque_confirmarCancelarItem(idItem, nome){
   document.getElementById('estoque-modal-motivo-titulo').textContent = `Cancelar saldo — ${nome}`;
   document.getElementById('estoque-input-motivo').value = '';
   document.getElementById('estoque-btn-confirmar-motivo').onclick = async () => {
     const motivo = document.getElementById('estoque-input-motivo').value.trim();
     try {
-      await estoque_apiPost('cancelarItem', { numeroPedido: estoque_state.pedidoAtual.NumeroPedido, codigo, motivo });
+      await estoque_apiPost('cancelarItem', { numeroPedido: estoque_state.pedidoAtual.NumeroPedido, idItem, motivo });
       estoque_toast('Item cancelado.');
       estoque_fecharModal('estoque-modal-motivo');
       const data = await estoque_apiGet('pedido', { numero: estoque_state.pedidoAtual.NumeroPedido });
@@ -9327,11 +9459,15 @@ async function estoque_confirmarSaida(){
   if (!destinadoPara || !quemLancou){ estoque_toast('Preencha para quem foi destinado e quem está lançando.', true); return; }
 
   try {
-    await estoque_apiPost('registrarSaida', {
+    const resp = await estoque_apiPost('registrarSaida', {
       data, codigo: estoque_insumoSelecionadoSaida.codigo, nome: estoque_insumoSelecionadoSaida.nome,
       quantidade, destinadoPara, quemLancou, obraCodigo: estoque_state.obraAtual.Codigo
     });
-    estoque_toast('Saída registrada com sucesso.');
+    if (resp.avisoEstoqueInsuficiente){
+      estoque_toast(`Saída registrada, mas o estoque de "${estoque_insumoSelecionadoSaida.nome}" ficou negativo (disponível antes: ${resp.disponivelAntes}).`, 'warning');
+    } else {
+      estoque_toast('Saída registrada com sucesso.');
+    }
     document.getElementById('estoque-saida-insumo').value = '';
     document.getElementById('estoque-saida-quantidade').value = '';
     document.getElementById('estoque-saida-destinado').value = '';
@@ -9379,11 +9515,15 @@ async function estoque_confirmarEmUso(){
   if (!destinadoPara || !quemLancou){ estoque_toast('Preencha quem está usando e quem está lançando.', true); return; }
 
   try {
-    await estoque_apiPost('registrarEmUso', {
+    const resp = await estoque_apiPost('registrarEmUso', {
       data, codigo: estoque_insumoSelecionadoEmUso.codigo, nome: estoque_insumoSelecionadoEmUso.nome,
       quantidade, destinadoPara, quemLancou, obraCodigo: estoque_state.obraAtual.Codigo
     });
-    estoque_toast('Saída temporária registrada.');
+    if (resp.avisoEstoqueInsuficiente){
+      estoque_toast(`Registrado, mas o estoque de "${estoque_insumoSelecionadoEmUso.nome}" ficou negativo (disponível antes: ${resp.disponivelAntes}).`, 'warning');
+    } else {
+      estoque_toast('Saída temporária registrada.');
+    }
     document.getElementById('estoque-emuso-insumo').value = '';
     document.getElementById('estoque-emuso-quantidade').value = '';
     document.getElementById('estoque-emuso-destinado').value = '';
@@ -9447,9 +9587,10 @@ async function estoque_confirmarConversaoParaSaida(idRegistro, descricao){
    ======================================================================= */
 async function estoque_carregarDashboard(){
   if (!estoque_state.obraAtual){
-    ['tbody-estoque','tbody-historico','tbody-ranking'].forEach(id => {
+    ['estoque-tbody-estoque','estoque-tbody-historico'].forEach(id => {
       document.getElementById(id).innerHTML = `<tr><td colspan="6"><div class="empty-state">Selecione uma obra para ver o dashboard.</div></td></tr>`;
     });
+    document.getElementById('estoque-lista-ranking').innerHTML = '<div class="empty-state">Selecione uma obra para ver o dashboard.</div>';
     return;
   }
   try {
@@ -9465,8 +9606,10 @@ async function estoque_carregarDashboard(){
 
 function estoque_renderEstoqueAtual(){
   const termo = estoque_normalize(document.getElementById('estoque-filtro-estoque').value);
+  const mostrarTodos = document.getElementById('estoque-chk-mostrar-todos-estoque').checked;
   const tbody = document.getElementById('estoque-tbody-estoque');
   let lista = estoque_state.dashboard.estoqueAtual || [];
+  if (!mostrarTodos) lista = lista.filter(it => (it.estoqueAtual || 0) > 0);
   if (termo){
     lista = lista.filter(it => estoque_normalize(it.codigo).indexOf(termo) === 0 || estoque_normalize(it.nome).indexOf(termo) !== -1);
   }
@@ -9513,14 +9656,25 @@ function estoque_renderHistorico(){
 }
 
 function estoque_renderRanking(){
-  const tbody = document.getElementById('estoque-tbody-ranking');
-  const lista = estoque_state.dashboard.ranking || [];
+  const termo = estoque_normalize(document.getElementById('estoque-filtro-ranking').value);
+  const container = document.getElementById('estoque-lista-ranking');
+  let lista = estoque_state.dashboard.ranking || [];
+  if (termo) lista = lista.filter(r => estoque_normalize(r.destinatario).indexOf(termo) !== -1);
+
   if (lista.length === 0){
-    tbody.innerHTML = `<tr><td colspan="2"><div class="empty-state">Nenhuma saída registrada no período.</div></td></tr>`;
+    container.innerHTML = '<div class="empty-state">Nenhuma saída registrada no período.</div>';
     return;
   }
-  tbody.innerHTML = lista.map(r => `
-    <tr><td>${r.destinatario}</td><td class="num">${r.total}</td></tr>
+  container.innerHTML = lista.map(r => `
+    <div class="ranking-card">
+      <div class="nome-destinatario">${r.destinatario}</div>
+      ${r.itens.map(it => `
+        <div class="ranking-item-linha">
+          <span>${it.codigo} — ${it.nome}</span>
+          <span class="num">${it.total} ${it.unidade || ''}</span>
+        </div>
+      `).join('')}
+    </div>
   `).join('');
 }
 
@@ -9622,12 +9776,7 @@ let estoque_iniciado = false;
 function estoque_initModule(){
   if (estoque_iniciado) return;
   estoque_iniciado = true;
-  document.getElementById('estoque-entrada-data').value = estoque_hojeISO();
-  document.getElementById('estoque-saida-data').value = estoque_hojeISO();
-  document.getElementById('estoque-emuso-data').value = estoque_hojeISO();
-  estoque_atualizarPillConexao();
-  if (estoque_apiConfigurada()) { estoque_carregarCadastro(); estoque_carregarObras(); }
-  else estoque_abrirConfigModal();
+  // Sempre começa deslogado — a tela de login (visível por padrão) permanece na frente
 }
 // Escuta a navegação do HUB: só inicializa quando o usuário entra no módulo Estoque
 window.addEventListener('hub-navigate', (e) => {
