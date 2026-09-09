@@ -1381,6 +1381,7 @@ html, body {
       <select id="gestao-prog-sort" onchange="gestao_filterPROG()">
         <option value="data_asc">📅 Mais urgente primeiro</option>
         <option value="data_desc">📅 Mais distante primeiro</option>
+        <option value="vencidas">⚠️ Vencidas primeiro</option>
       </select>
     </div>
     <div id="gestao-prog-content"></div>
@@ -2262,8 +2263,11 @@ function gestao_filterPROG(){
 
   urgentes.sort((a,b)  => sort==='data_desc' ? b.dias-a.dias : a.dias-b.dias);
   atrasados.sort((a,b) => sort==='data_desc' ? a.dias-b.dias : b.dias-a.dias);
+  obsoletos.sort((a,b) => a.dias-b.dias);
 
-  filtered = [...urgentes, ...atrasados, ...semData, ...obsoletos];
+  filtered = sort==='vencidas'
+    ? [...obsoletos, ...urgentes, ...atrasados, ...semData]
+    : [...urgentes, ...atrasados, ...semData, ...obsoletos];
 
   gestaoState.prog.filtered = filtered;
   gestaoState.prog.page = 1;
