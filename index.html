@@ -1662,6 +1662,7 @@ function gestao_parseSOL(wb,log){
   const parsed=[];
   for(let i=hRow+1;i<rows.length;i++){
     const r=rows[i];const ins=String(r[0]||'').trim();if(!ins)continue;
+    if(/^total\b/i.test(ins))continue; // linha de total/rodapé do relatório Sienge (ex.: "Total #") — não é um insumo real, não deve virar item de Solicitações/Programação
     const cm=ins.match(/^(\d+)\s*-/);const ic=cm?cm[1]:'';
     const qn=parseFloat(r[10]);
     let dtPrev=null,dtPrevStr='—';
@@ -2181,6 +2182,12 @@ function gestao_renderProgResumo(){
     const c=porStatus[s];
     return `<div class="g-resumo-row"><span class="g-resumo-row-dot" style="background:${color}"></span><span class="g-resumo-row-label">${s.charAt(0)+s.slice(1).toLowerCase()}</span><span class="g-resumo-row-count">${c}</span><span class="g-resumo-row-pct">${pct(c)}%</span></div>`;
   }).join('');
+  const porObra={};
+  d.forEach(r=>{ const o=r.obra||'—'; porObra[o]=(porObra[o]||0)+1; });
+  const obraRows=Object.entries(porObra).sort((a,b)=>b[1]-a[1]).map(([obra,c])=>{
+    const p=pct(c);
+    return `<div class="g-resumo-row"><span class="g-resumo-row-dot" style="background:var(--g-accent)"></span><span class="g-resumo-row-label">${obra}</span><span class="g-resumo-row-count">${c}</span><span class="g-resumo-row-pct">${p}%</span></div>`;
+  }).join('');
   function buyerBlock(nome,key,cor){
     const dr=d.filter(r=>r.responsavel===key);
     const t=dr.length;
@@ -2198,6 +2205,10 @@ function gestao_renderProgResumo(){
     <div class="g-resumo-block">
       <div class="g-resumo-block-title">Detalhamento por Status</div>
       ${statusRows}
+    </div>
+    <div class="g-resumo-block">
+      <div class="g-resumo-block-title">% de Compras por Obra</div>
+      ${obraRows}
     </div>
     <div class="g-resumo-buyers">
       ${buyerBlock('Aline','ALINE','var(--g-accent3)')}
