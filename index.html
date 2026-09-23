@@ -59,6 +59,8 @@ window._fb = {
 // documento do Firestore, não importa quantas planilhas sejam importadas.
 const BATCHES_COL = collection(db, 'compra', 'main', 'batches');
 const BATCH_CHUNK_SIZE = 3000; // registros por documento — margem segura sob o limite de 1MiB
+// Metadados da base (última importação) — guardados no próprio doc pai compra/main
+const COMPRA_META_REF = doc(db, 'compra', 'main');
 
 window._fbCompra = {
   // Salva um lote de registros (já deduplicados) em um ou mais documentos pequenos
@@ -80,19 +82,36 @@ window._fbCompra = {
       return all;
     } catch(e) { console.error('Firebase (compra) loadAll error:', e); return []; }
   },
-  // Escuta mudanças na subcoleção inteira e devolve a lista já mesclada
+  // Escuta mudanças na subcoleção inteira e devolve a lista já mesclada.
+  // O 2º argumento do callback é o createdAt mais recente entre os lotes
+  // (fallback para "última atualização" quando o doc de metadados ainda não existe).
   listen(callback) {
     return onSnapshot(BATCHES_COL, snap => {
-      let all = [];
-      snap.forEach(d => { all = all.concat(d.data().records || []); });
-      callback(all);
+      let all = [], latest = null;
+      snap.forEach(d => {
+        const data = d.data();
+        all = all.concat(data.records || []);
+        if (data.createdAt && (!latest || data.createdAt > latest)) latest = data.createdAt;
+      });
+      callback(all, latest);
     }, err => console.error('Snapshot error (compra):', err));
+  },
+  // Registra a última importação (data/hora, usuário, arquivo) — grava mesmo se o arquivo só tinha duplicatas
+  async saveMeta(meta) {
+    try { await setDoc(COMPRA_META_REF, { lastUpload: meta }, { merge: true }); return true; }
+    catch(e) { console.error('Firebase (compra) saveMeta error:', e); return false; }
+  },
+  listenMeta(callback) {
+    return onSnapshot(COMPRA_META_REF, snap => {
+      callback(snap.exists() ? (snap.data().lastUpload || null) : null);
+    }, err => console.error('Snapshot error (compra meta):', err));
   },
   // Apaga todos os lotes (usado por "Limpar tudo")
   async clearAll() {
     try {
       const snap = await getDocs(BATCHES_COL);
       await Promise.all(snap.docs.map(d => deleteDoc(d.ref)));
+      await setDoc(COMPRA_META_REF, { lastUpload: null }, { merge: true });
       return true;
     } catch(e) { console.error('Firebase (compra) clearAll error:', e); return false; }
   }
@@ -3046,6 +3065,13 @@ function gestao_renderFORN(){
 #hub-module-compra .filters-row{ gap: 14px; }
 }#hub-module-compra .compra-readonly-banner{display:none;background:var(--amber-bg);border:1px solid rgba(224,165,66,0.3);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--amber);}
 #hub-module-compra.compra-readonly .compra-readonly-banner{display:flex;gap:8px;align-items:flex-start;}
+#hub-module-compra .compra-header-right{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+#hub-module-compra .compra-header-right .badge{ margin-left:0; }
+#hub-module-compra .compra-lastupd{ font-family:'DM Mono',monospace; font-size:11.5px; color:var(--text2); white-space:nowrap; }
+#hub-module-compra .compra-lastupd b{ color:var(--text); font-weight:500; }
+#hub-module-compra .compra-stat-upd{ font-family:'DM Mono',monospace; font-size:14px !important; margin-top:4px; }
+#hub-module-compra .compra-stat-upd-sub{ font-size:11px; color:var(--text3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+@media (max-width: 900px){ #hub-module-compra .compra-lastupd{ display:none !important; } }
 #hub-module-compra.compra-readonly #compra-uploadZone,
 #hub-module-compra.compra-readonly .stat-card.danger{pointer-events:none;opacity:.5;cursor:default;}
 
@@ -3058,7 +3084,10 @@ function gestao_renderFORN(){
       <h1>Últimas Compras — Insumos</h1>
     </div>
   </div>
-  <span class="badge" id="compra-dbCount">0 insumos</span>
+  <div class="compra-header-right">
+    <span class="compra-lastupd" id="compra-lastUpdate" style="display:none"></span>
+    <span class="badge" id="compra-dbCount">0 insumos</span>
+  </div>
 </header>
 
 <div class="container">
@@ -3148,6 +3177,7 @@ function gestao_renderFORN(){
       <div class="stat-card"><div class="label">Detalhes</div><div class="value" id="compra-statDetalhes">0</div></div>
       <div class="stat-card"><div class="label">Fornecedores</div><div class="value" id="compra-statFornecedores">0</div></div>
       <div class="stat-card"><div class="label">Registros totais</div><div class="value" id="compra-statRegistros">0</div></div>
+      <div class="stat-card"><div class="label">Última atualização</div><div class="value compra-stat-upd" id="compra-statUltimaAtualizacao">—</div><div class="compra-stat-upd-sub" id="compra-statUltimaAtualizacaoSub"></div></div>
       <div class="stat-card danger" onclick="compra_clearAll()"><div class="label">Ação</div><div class="value" style="font-size:13px;margin-top:4px">🗑 Limpar tudo</div></div>
     </div>
 
@@ -3168,14 +3198,24 @@ let compra_allRecords = [];
 let compra_currentSort = 'data_desc';
 let compra_fornTipos = {}; // nome do fornecedor -> 'ARMAZEM'|'FABRICA'|'OUTRO', cruzado com a Gestão de Insumos
 let compra_unsub = null;
+let compra_lastUploadMeta = null;     // { at, by, file } vindo de compra/main
+let compra_lastBatchAt = null;        // fallback: createdAt mais recente entre os lotes
+let compra_pendingFileName = '';
 
 function compra_loadStorage() {
   const tryConnect = () => {
     if (!window._fbCompra) { setTimeout(tryConnect, 100); return; }
-    compra_unsub = window._fbCompra.listen(all => {
+    compra_unsub = window._fbCompra.listen((all, latest) => {
       compra_allRecords = all;
+      compra_lastBatchAt = latest || null;
       compra_refreshUI();
     });
+    if (window._fbCompra.listenMeta) {
+      window._fbCompra.listenMeta(meta => {
+        compra_lastUploadMeta = meta;
+        compra_renderLastUpdate();
+      });
+    }
   };
   tryConnect();
 }
@@ -3220,6 +3260,7 @@ compra_fileInput.addEventListener('change', e => { if (e.target.files[0]) compra
 function compra_handleFile(file) {
   if (!window.HUB_CAN_EDIT) { compra_toast('⚠️ Modo visitante — apenas leitura.'); return; }
   if (!file) return;
+  compra_pendingFileName = file.name || '';
   document.getElementById('compra-progress').style.display = 'block';
   document.getElementById('compra-progress').textContent = 'Lendo arquivo...';
   setTimeout(() => {
@@ -3344,7 +3385,13 @@ async function compra_parseXLSX(buffer) {
   }
   const added = dedupedNew.length;
 
-  await compra_saveNewRecords(dedupedNew);
+  const saveOk = await compra_saveNewRecords(dedupedNew);
+  if (saveOk && window._fbCompra && window._fbCompra.saveMeta) {
+    const meta = { at: new Date().toISOString(), by: window.HUB_CURRENT_USER || '', file: compra_pendingFileName || '', added: added, total: newRecords.length };
+    compra_lastUploadMeta = meta;
+    compra_renderLastUpdate();
+    await window._fbCompra.saveMeta(meta);
+  }
   document.getElementById('compra-progress').style.display = 'none';
   compra_fileInput.value = '';
 
@@ -3437,6 +3484,37 @@ function compra_recordMatchesTokens(r, tokens) {
   return tokens.every(t => compra_tokenMatchesRecord(t, codeNorm, textNorm));
 }
 
+// ─── Última atualização ───────────────────────────────────────────────────────
+function compra_fmtDateTime(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const p = n => String(n).padStart(2, '0');
+  return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+function compra_renderLastUpdate() {
+  const meta = compra_lastUploadMeta;
+  // Usa o doc de metadados; se ainda não existir (importações antigas), cai no lote mais recente
+  const at = (meta && meta.at) || (compra_allRecords.length ? compra_lastBatchAt : null);
+  const hdr = document.getElementById('compra-lastUpdate');
+  const val = document.getElementById('compra-statUltimaAtualizacao');
+  const sub = document.getElementById('compra-statUltimaAtualizacaoSub');
+  if (!hdr || !val || !sub) return;
+  const txt = at ? compra_fmtDateTime(at) : '';
+  if (!txt) {
+    hdr.style.display = 'none'; hdr.innerHTML = '';
+    val.textContent = '—'; sub.textContent = ''; sub.title = '';
+    return;
+  }
+  const by = (meta && meta.at === at && meta.by) ? meta.by : '';
+  const file = (meta && meta.at === at && meta.file) ? meta.file : '';
+  hdr.style.display = '';
+  hdr.innerHTML = `Atualizado em <b>${compra_esc(txt)}</b>` + (by ? ` · ${compra_esc(by)}` : '');
+  hdr.title = file ? `Arquivo: ${file}` : '';
+  val.textContent = txt;
+  sub.textContent = [by, file].filter(Boolean).join(' · ');
+  sub.title = sub.textContent;
+}
+
 // ─── UI ───────────────────────────────────────────────────────────────────────
 function compra_refreshUI() {
   const root = document.getElementById('hub-module-compra');
@@ -3454,6 +3532,7 @@ function compra_refreshUI() {
     return (p.code || '?') + '||' + p.name;
   }));
   document.getElementById('compra-dbCount').textContent = allInsumoKeys.size + ' insumos';
+  compra_renderLastUpdate();
 
   if (!has) { document.getElementById('compra-results').innerHTML = ''; return; }
 
@@ -3623,6 +3702,7 @@ async function compra_clearAll() {
   if (!window.HUB_CAN_EDIT) { compra_toast('⚠️ Modo visitante — apenas leitura.'); return; }
   if (!confirm('Apagar todos os dados salvos? Não pode ser desfeito.')) return;
   compra_allRecords = [];
+  compra_lastUploadMeta = null; compra_lastBatchAt = null;
   document.getElementById('compra-searchInput').value = '';
   document.getElementById('compra-infoBox').style.display = 'none';
   compra_refreshUI();
